@@ -10,16 +10,21 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
 import it.caldesi.webbot.model.bean.Instruction;
+import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
@@ -47,6 +52,11 @@ public class RecordController implements Initializable {
 	@FXML
 	private TreeTableColumn<Instruction, String> treeColArgs;
 
+	@FXML
+	private Button goButton;
+	@FXML
+	private TextField addressTextField;
+
 	private WebEngine webEngine;
 
 	@FXML
@@ -57,12 +67,6 @@ public class RecordController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		// ResourceBundle recordBundle =
-		// ResourceBundle.getBundle("bundles.RecordScene", new Locale("it",
-		// "IT"));
-		// ResourceBundle recordBundle =
-		// ResourceBundle.getBundle("it.caldesi.webbot.properties.RecordScene");
-
 		initWebView(resources);
 		initTreeTableView(resources);
 	}
@@ -96,6 +100,7 @@ public class RecordController implements Initializable {
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				System.out.println("-----LOCATION----->" + webEngine.getLocation());
 				System.out.println("State: " + ov.getValue().toString());
+				addressTextField.setText(webEngine.getLocation());
 
 				if (newState == Worker.State.SUCCEEDED) {
 					EventListener listener = new EventListener() {
@@ -110,13 +115,13 @@ public class RecordController implements Initializable {
 				}
 			}
 		});
-
-		// load the web page
-		String URL = "https://www.facebook.com";
-		webEngine.load(URL);
 	}
 
-	public void newActionPopup(Event ev) {
+	private void loadPage(String url) {
+		webEngine.load(url);
+	}
+
+	private void newActionPopup(Event ev) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/popup_new_action.fxml"),
 					resources);
@@ -147,6 +152,13 @@ public class RecordController implements Initializable {
 		} else {
 			root.getChildren().add(item);
 		}
+	}
+	
+
+	public void goToAddress() {
+		String url = addressTextField.getText();
+		url = Utils.adjustUrl(url);
+		loadPage(url);
 	}
 
 }

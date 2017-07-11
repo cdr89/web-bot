@@ -7,10 +7,24 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
-	fx:controller="it.caldesi.webbot.controller.RecordController"
-	prefHeight="600.0" prefWidth="800.0">
+<BorderPane prefHeight="600.0" prefWidth="800.0"
+	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="it.caldesi.webbot.controller.RecordController">
+	<top>
+		<HBox prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+			<children>
+				<Label text="%scene.record.topbar.address.label" />
+				<TextField fx:id="addressTextField" prefHeight="25.0"
+					prefWidth="470.0" onAction="#goToAddress" />
+				<Button fx:id="goButton" mnemonicParsing="false"
+					text="%scene.record.topbar.address.goButton" onAction="#goToAddress" />
+			</children>
+		</HBox>
+	</top>
+	<center>
+		<WebView fx:id="webView" prefHeight="516.0" prefWidth="757.0"
+			BorderPane.alignment="CENTER" />
+	</center>
 	<right>
 		<TreeTableView fx:id="scriptTreeTable" prefHeight="600.0"
 			prefWidth="400.0" BorderPane.alignment="CENTER">
@@ -26,8 +40,4 @@
 			</columns>
 		</TreeTableView>
 	</right>
-	<center>
-		<WebView fx:id="webView" prefHeight="516.0" prefWidth="757.0"
-			BorderPane.alignment="CENTER" />
-	</center>
 </BorderPane>
