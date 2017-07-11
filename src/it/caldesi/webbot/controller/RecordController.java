@@ -1,6 +1,7 @@
 package it.caldesi.webbot.controller;
 
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 import org.w3c.dom.Document;
@@ -15,8 +16,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -153,12 +152,19 @@ public class RecordController implements Initializable {
 			root.getChildren().add(item);
 		}
 	}
-	
 
 	public void goToAddress() {
 		String url = addressTextField.getText();
+		if (url == null || url.isEmpty())
+			return;
 		url = Utils.adjustUrl(url);
 		loadPage(url);
+		Instruction instruction = new Instruction();
+		instruction.setActionName("goToPage");// TODO replace the actionName when available
+		LinkedList<String> args = new LinkedList<>();
+		args.add(url);
+		instruction.setArgs(args);
+		appendInstructionToList(instruction);
 	}
 
 }
