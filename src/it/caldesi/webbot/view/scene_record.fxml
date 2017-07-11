@@ -9,15 +9,20 @@
 
 
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
-	fx:controller="it.caldesi.webbot.controller.RecordController" prefHeight="600.0"
-	prefWidth="800.0">
+	fx:controller="it.caldesi.webbot.controller.RecordController"
+	prefHeight="600.0" prefWidth="800.0">
 	<right>
 		<TreeTableView fx:id="scriptTreeTable" prefHeight="600.0"
 			prefWidth="400.0" BorderPane.alignment="CENTER">
 			<columns>
-				<TreeTableColumn prefWidth="100.0" text="Action" />
-				<TreeTableColumn prefWidth="150.0" text="Object" />
-				<TreeTableColumn prefWidth="150.0" text="Arguments" />
+				<TreeTableColumn fx:id="treeColLabel" prefWidth="100.0"
+					text="%scene.record.scriptList.col.label" />
+				<TreeTableColumn fx:id="treeColAction" prefWidth="100.0"
+					text="%scene.record.scriptList.col.action" />
+				<TreeTableColumn fx:id="treeColObj" prefWidth="100.0"
+					text="%scene.record.scriptList.col.object" />
+				<TreeTableColumn fx:id="treeColArgs" prefWidth="100.0"
+					text="%scene.record.scriptList.col.args" />
 			</columns>
 		</TreeTableView>
 	</right>

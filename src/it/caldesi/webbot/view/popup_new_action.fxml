@@ -4,19 +4,21 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Button?>
 
-
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8" fx:controller="it.caldesi.webbot.controller.PopupNewActionController">
-   <children>
-      <VBox prefHeight="200.0" prefWidth="300.0">
-         <children>
-            <HBox prefHeight="80" prefWidth="300.0">
-               <children>
-                  <Label text="XPath:" />
-                  <TextField fx:id="xpathField"/>
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-   </children>
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="it.caldesi.webbot.controller.PopupNewActionController">
+	<children>
+		<VBox prefHeight="200.0" prefWidth="300.0">
+			<children>
+				<HBox prefHeight="80" prefWidth="300.0">
+					<children>
+						<Label text="XPath:" />
+						<TextField fx:id="xpathField" />
+					</children>
+				</HBox>
+				<Button mnemonicParsing="false" fx:id="okButton" text="OK" />
+			</children>
+		</VBox>
+	</children>
 </AnchorPane>
