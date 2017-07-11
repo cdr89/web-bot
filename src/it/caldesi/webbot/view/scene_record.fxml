@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.web.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+	fx:controller="it.caldesi.webbot.controller.RecordController" prefHeight="600.0"
+	prefWidth="800.0">
+	<right>
+		<TreeTableView fx:id="scriptTreeTable" prefHeight="600.0"
+			prefWidth="400.0" BorderPane.alignment="CENTER">
+			<columns>
+				<TreeTableColumn prefWidth="100.0" text="Action" />
+				<TreeTableColumn prefWidth="150.0" text="Object" />
+				<TreeTableColumn prefWidth="150.0" text="Arguments" />
+			</columns>
+		</TreeTableView>
+	</right>
+	<center>
+		<WebView fx:id="webView" prefHeight="516.0" prefWidth="757.0"
+			BorderPane.alignment="CENTER" />
+	</center>
+</BorderPane>
