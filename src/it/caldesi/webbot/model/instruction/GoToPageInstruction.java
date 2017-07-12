@@ -2,7 +2,7 @@ package it.caldesi.webbot.model.instruction;
 
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
-import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 public class GoToPageInstruction extends Instruction<Void> {
 
@@ -18,10 +18,10 @@ public class GoToPageInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public Void execute(WebEngine webEngine) throws GenericException {
+	public Void execute(WebView webView) throws GenericException {
 		if (args == null || args.isEmpty())
 			throw new ArgumentRequiredException("URL");
-		webEngine.load(args.get(0));
+		webView.getEngine().load(args.get(0));
 		return null;
 	}
 

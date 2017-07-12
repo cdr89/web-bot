@@ -5,7 +5,7 @@ import java.util.List;
 
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.exception.GenericException;
-import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 
 public abstract class Instruction<T> {
 
@@ -23,7 +23,7 @@ public abstract class Instruction<T> {
 		this();
 		this.actionName = actionName;
 	}
-	
+
 	public String getActionName() {
 		return actionName;
 	}
@@ -58,7 +58,7 @@ public abstract class Instruction<T> {
 
 	public abstract String toJSCode();
 
-	public abstract T execute(WebEngine webEngine) throws GenericException;
+	public abstract T execute(WebView webView) throws GenericException;
 
 	public static class Builder {
 

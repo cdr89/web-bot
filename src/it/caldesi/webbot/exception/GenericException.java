@@ -14,6 +14,10 @@ public class GenericException extends Exception {
 		super(message);
 	}
 
+	public GenericException(Exception e) {
+		super(e);
+	}
+
 	@Override
 	public String getMessage() {
 		return message;

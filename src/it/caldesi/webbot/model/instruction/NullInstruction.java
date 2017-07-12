@@ -1,6 +1,7 @@
 package it.caldesi.webbot.model.instruction;
 
-import javafx.scene.web.WebEngine;
+import it.caldesi.webbot.exception.GenericException;
+import javafx.scene.web.WebView;
 
 public class NullInstruction extends Instruction<Void> {
 
@@ -14,7 +15,7 @@ public class NullInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public Void execute(WebEngine webEngine) {
+	public Void execute(WebView webView) throws GenericException {
 		return null;
 	}
 
