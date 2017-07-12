@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
 
+import it.caldesi.webbot.model.bean.ClickInstruction;
 import it.caldesi.webbot.model.bean.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.XMLUtils;
@@ -25,7 +26,7 @@ public class PopupNewActionController implements Initializable {
 	@FXML
 	Button okButton;
 
-	private Consumer<Instruction> instructionCallBack;
+	private Consumer<Instruction<?>> instructionCallBack;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -33,7 +34,7 @@ public class PopupNewActionController implements Initializable {
 			@Override
 			public void handle(ActionEvent event) {
 				if (instructionCallBack != null) {
-					Instruction instruction = buildInstruction();
+					Instruction<?> instruction = buildInstruction();
 					instructionCallBack.accept(instruction);
 
 					UIUtils.closeDialogFromEvent(event);
@@ -48,13 +49,12 @@ public class PopupNewActionController implements Initializable {
 		xpathField.setText(xPath);
 	}
 
-	public void setInstructionCallback(Consumer<Instruction> callback) {
+	public void setInstructionCallback(Consumer<Instruction<?>> callback) {
 		this.instructionCallBack = callback;
 	}
 
-	private Instruction buildInstruction() {
-		Instruction instruction = new Instruction();
-		instruction.setActionName("click"); // TODO take this as input
+	private Instruction<?> buildInstruction() { // TODO
+		Instruction<?> instruction = new ClickInstruction();
 		instruction.setObjectXPath(xpathField.getText());
 
 		return instruction;

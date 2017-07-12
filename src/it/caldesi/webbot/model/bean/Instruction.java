@@ -1,15 +1,21 @@
 package it.caldesi.webbot.model.bean;
 
+import java.util.LinkedList;
 import java.util.List;
 
-public class Instruction {
+import it.caldesi.webbot.exception.GenericException;
+import javafx.scene.web.WebEngine;
 
-	private String label;
-	private String actionName;
-	private String objectXPath;
-	private List<String> args;
+public abstract class Instruction<T> {
+
+	protected static String actionName;
+
+	protected String label;
+	protected String objectXPath;
+	protected List<String> args;
 
 	public Instruction() {
+		args = new LinkedList<>();
 	}
 
 	public String getLabel() {
@@ -18,14 +24,6 @@ public class Instruction {
 
 	public void setLabel(String label) {
 		this.label = label;
-	}
-
-	public String getActionName() {
-		return actionName;
-	}
-
-	public void setActionName(String actionName) {
-		this.actionName = actionName;
 	}
 
 	public String getObjectXPath() {
@@ -43,5 +41,9 @@ public class Instruction {
 	public void setArgs(List<String> args) {
 		this.args = args;
 	}
+
+	public abstract String toJSCode();
+
+	public abstract T execute(WebEngine webEngine) throws GenericException;
 
 }

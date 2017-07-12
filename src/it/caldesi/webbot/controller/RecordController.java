@@ -10,7 +10,9 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import it.caldesi.webbot.model.bean.GoToPageInstruction;
 import it.caldesi.webbot.model.bean.Instruction;
+import it.caldesi.webbot.model.bean.NullInstruction;
 import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -40,16 +42,16 @@ public class RecordController implements Initializable {
 	private WebView webView;
 
 	@FXML
-	private TreeTableView<Instruction> scriptTreeTable;
+	private TreeTableView<Instruction<?>> scriptTreeTable;
 
 	@FXML
-	private TreeTableColumn<Instruction, String> treeColLabel;
+	private TreeTableColumn<Instruction<?>, String> treeColLabel;
 	@FXML
-	private TreeTableColumn<Instruction, String> treeColAction;
+	private TreeTableColumn<Instruction<?>, String> treeColAction;
 	@FXML
-	private TreeTableColumn<Instruction, String> treeColObj;
+	private TreeTableColumn<Instruction<?>, String> treeColObj;
 	@FXML
-	private TreeTableColumn<Instruction, String> treeColArgs;
+	private TreeTableColumn<Instruction<?>, String> treeColArgs;
 
 	@FXML
 	private Button goButton;
@@ -74,15 +76,15 @@ public class RecordController implements Initializable {
 		scriptTreeTable.setPlaceholder((new Label(recordBundle.getString("scene.record.emptyScriptList"))));
 
 		// Column mapping
-		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction, String>("label"));
-		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction, String>("actionName"));
-		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction, String>("objectXPath"));
-		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction, String>("args"));
+		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("label"));
+		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));
+		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("objectXPath"));
+		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("args"));
 
 		// root node
-		Instruction root = new Instruction();
+		Instruction<?> root = new NullInstruction();
 		root.setLabel("root");
-		TreeItem<Instruction> rootItem = new TreeItem<Instruction>(root);
+		TreeItem<Instruction<?>> rootItem = new TreeItem<>(root);
 		scriptTreeTable.setRoot(rootItem);
 		scriptTreeTable.setShowRoot(false);
 	}
@@ -142,10 +144,10 @@ public class RecordController implements Initializable {
 		}
 	}
 
-	private void appendInstructionToList(Instruction instruction) {
-		TreeItem<Instruction> item = new TreeItem<Instruction>(instruction);
+	private void appendInstructionToList(Instruction<?> instruction) {
+		TreeItem<Instruction<?>> item = new TreeItem<>(instruction);
 
-		TreeItem<Instruction> root = scriptTreeTable.getRoot();
+		TreeItem<Instruction<?>> root = scriptTreeTable.getRoot();
 		if (root == null) {
 			scriptTreeTable.setRoot(item);
 		} else {
@@ -159,8 +161,7 @@ public class RecordController implements Initializable {
 			return;
 		url = Utils.adjustUrl(url);
 		loadPage(url);
-		Instruction instruction = new Instruction();
-		instruction.setActionName("goToPage");// TODO replace the actionName when available
+		Instruction<?> instruction = new GoToPageInstruction();
 		LinkedList<String> args = new LinkedList<>();
 		args.add(url);
 		instruction.setArgs(args);
