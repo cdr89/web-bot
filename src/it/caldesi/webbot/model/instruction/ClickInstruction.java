@@ -1,6 +1,7 @@
 package it.caldesi.webbot.model.instruction;
 
 import it.caldesi.webbot.exception.GenericException;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 public class ClickInstruction extends Instruction<Void> {
@@ -18,7 +19,11 @@ public class ClickInstruction extends Instruction<Void> {
 
 	@Override
 	public Void execute(WebView webView) throws GenericException {
-		// TODO Auto-generated method stub
+		WebEngine engine = webView.getEngine();
+		String script = "var element = document.evaluate( \"" + objectXPath
+				+ "\" ,document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue.click();";
+		engine.executeScript(script);
+
 		return null;
 	}
 

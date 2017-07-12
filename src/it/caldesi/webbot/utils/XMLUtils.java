@@ -1,12 +1,29 @@
 package it.caldesi.webbot.utils;
 
+import java.io.StringWriter;
 import java.util.Stack;
+
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 public class XMLUtils {
+
+	public static String nodeToString(Node node) throws Exception {
+		DOMSource domSource = new DOMSource(node);
+		StringWriter writer = new StringWriter();
+		StreamResult result = new StreamResult(writer);
+		TransformerFactory tf = TransformerFactory.newInstance();
+		Transformer transformer = tf.newTransformer();
+		transformer.transform(domSource, result);
+
+		return writer.toString();
+	}
 
 	public static String getFullXPath(Node n) {
 		// abort early
@@ -97,5 +114,5 @@ public class XMLUtils {
 		// return buffer
 		return buffer.toString();
 	}
-	
+
 }

@@ -10,14 +10,17 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
 import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -30,6 +33,8 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
@@ -55,6 +60,8 @@ public class RecordController implements Initializable {
 
 	@FXML
 	private Button goButton;
+	@FXML
+	private Button executeButton;
 	@FXML
 	private TextField addressTextField;
 
@@ -87,6 +94,18 @@ public class RecordController implements Initializable {
 		TreeItem<Instruction<?>> rootItem = new TreeItem<>(root);
 		scriptTreeTable.setRoot(rootItem);
 		scriptTreeTable.setShowRoot(false);
+
+		scriptTreeTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
+			public void handle(final KeyEvent keyEvent) {
+				final TreeItem<Instruction<?>> selectedItem = scriptTreeTable.getSelectionModel().getSelectedItem();
+				if (selectedItem != null) {
+					if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+						selectedItem.getParent().getChildren().remove(selectedItem);
+					}
+				}
+			}
+		});
 	}
 
 	public void initWebView(ResourceBundle recordBundle) {
@@ -166,6 +185,19 @@ public class RecordController implements Initializable {
 		args.add(url);
 		instruction.setArgs(args);
 		appendInstructionToList(instruction);
+	}
+
+	public void executeScript() {
+		ObservableList<TreeItem<Instruction<?>>> instructions = scriptTreeTable.getRoot().getChildren();
+		for (TreeItem<Instruction<?>> treeItem : instructions) {
+			Instruction<?> instruction = treeItem.getValue();
+			try {
+				instruction.execute(webView);
+			} catch (GenericException e) {
+				e.printStackTrace();
+				break;
+			}
+		}
 	}
 
 }
