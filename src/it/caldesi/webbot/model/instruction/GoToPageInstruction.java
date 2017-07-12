@@ -6,10 +6,10 @@ import javafx.scene.web.WebEngine;
 
 public class GoToPageInstruction extends Instruction<Void> {
 
-	protected static String actionName = "goToPage";
+	public static final String NAME = "goToPage";
 
 	public GoToPageInstruction() {
-		super();
+		super(NAME);
 	}
 
 	@Override

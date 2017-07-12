@@ -161,7 +161,7 @@ public class RecordController implements Initializable {
 			return;
 		url = Utils.adjustUrl(url);
 		loadPage(url);
-		Instruction<?> instruction = new GoToPageInstruction();
+		Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
 		LinkedList<String> args = new LinkedList<>();
 		args.add(url);
 		instruction.setArgs(args);

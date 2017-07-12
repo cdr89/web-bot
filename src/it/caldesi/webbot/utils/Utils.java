@@ -96,10 +96,26 @@ public class Utils {
 	}
 
 	public static Object getFieldValue(Class<?> c, String fieldName) throws Exception {
-		Field field = c.getDeclaredField(fieldName);
-		field.setAccessible(true);
+		Field field = null;
+		try {
+			field = c.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return field.get(c.newInstance());
+		} catch (Exception e) {
+			// try to find the field into superclass hierarchy
+			Class<?> superClass = c.getSuperclass();
+			while (superClass != null) {
+				try {
+					field = c.getDeclaredField(fieldName);
+					field.setAccessible(true);
+					return field.get(c.newInstance());
+				} catch (Exception e1) {
+					superClass = superClass.getSuperclass();
+				}
+			}
+		}
 
-		return field.get(c.newInstance());
+		throw new IllegalArgumentException();
 	}
 
 }

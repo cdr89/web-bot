@@ -3,12 +3,13 @@ package it.caldesi.webbot.model.instruction;
 import java.util.LinkedList;
 import java.util.List;
 
+import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebEngine;
 
 public abstract class Instruction<T> {
 
-	protected static String actionName;
+	public String actionName;
 
 	protected String label;
 	protected String objectXPath;
@@ -16,6 +17,19 @@ public abstract class Instruction<T> {
 
 	public Instruction() {
 		args = new LinkedList<>();
+	}
+
+	protected Instruction(String actionName) {
+		this();
+		this.actionName = actionName;
+	}
+	
+	public String getActionName() {
+		return actionName;
+	}
+
+	public void setActionName(String actionName) {
+		this.actionName = actionName;
 	}
 
 	public String getLabel() {
@@ -45,5 +59,13 @@ public abstract class Instruction<T> {
 	public abstract String toJSCode();
 
 	public abstract T execute(WebEngine webEngine) throws GenericException;
+
+	public static class Builder {
+
+		public static Instruction<?> buildByName(String actionName) {
+			return Context.getInstructionInstanceByType(actionName);
+		}
+
+	}
 
 }

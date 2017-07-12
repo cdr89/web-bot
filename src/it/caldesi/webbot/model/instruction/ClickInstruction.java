@@ -4,20 +4,20 @@ import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebEngine;
 
 public class ClickInstruction extends Instruction<Void> {
-	
-	protected static String actionName = "click";
+
+	public static final String NAME = "click";
 
 	public ClickInstruction() {
-		super();
+		super(NAME);
 	}
 
 	@Override
 	public String toJSCode() {
-		return ""; //TODO
+		return ""; // TODO
 	}
 
 	@Override
-	public Void execute(WebEngine webEngine) throws GenericException{
+	public Void execute(WebEngine webEngine) throws GenericException {
 		// TODO Auto-generated method stub
 		return null;
 	}

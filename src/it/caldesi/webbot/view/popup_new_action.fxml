@@ -9,15 +9,27 @@
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="it.caldesi.webbot.controller.PopupNewActionController">
 	<children>
-		<VBox prefHeight="200.0" prefWidth="300.0">
+		<VBox prefHeight="99.0" prefWidth="300.0">
 			<children>
-				<HBox prefHeight="80" prefWidth="300.0">
+				<HBox prefHeight="31.0" prefWidth="300.0">
 					<children>
 						<Label text="XPath:" />
-						<TextField fx:id="xpathField" />
+						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="xpathField" />
 					</children>
 				</HBox>
-				<Button mnemonicParsing="false" fx:id="okButton" text="OK" />
+				<HBox prefHeight="35.0" prefWidth="300.0">
+					<children>
+						<Label text="Action:" />
+						<ComboBox fx:id="actionCombobox" prefHeight="25.0" prefWidth="233.0" />
+					</children>
+				</HBox>
+				<HBox prefHeight="33.0" prefWidth="300.0">
+					<children>
+						<Button fx:id="cancelButton" mnemonicParsing="false" text="Cancel" />
+						<Button fx:id="okButton" mnemonicParsing="false"
+							prefHeight="25.0" prefWidth="72.0" text="OK" />
+					</children>
+				</HBox>
 			</children>
 		</VBox>
 	</children>
