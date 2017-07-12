@@ -20,6 +20,7 @@ public class ClickInstruction extends Instruction<Void> {
 	@Override
 	public Void execute(WebView webView) throws GenericException {
 		WebEngine engine = webView.getEngine();
+		// TODO escape the XPath
 		String script = "var element = document.evaluate( \"" + objectXPath
 				+ "\" ,document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue.click();";
 		engine.executeScript(script);
