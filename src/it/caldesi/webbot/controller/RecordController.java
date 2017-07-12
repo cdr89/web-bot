@@ -10,14 +10,13 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
+import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.event.EventHandler;
@@ -188,16 +187,7 @@ public class RecordController implements Initializable {
 	}
 
 	public void executeScript() {
-		ObservableList<TreeItem<Instruction<?>>> instructions = scriptTreeTable.getRoot().getChildren();
-		for (TreeItem<Instruction<?>> treeItem : instructions) {
-			Instruction<?> instruction = treeItem.getValue();
-			try {
-				instruction.execute(webView);
-			} catch (GenericException e) {
-				e.printStackTrace();
-				break;
-			}
-		}
+		ScriptExecutor.executeScript(scriptTreeTable, webView);
 	}
 
 }
