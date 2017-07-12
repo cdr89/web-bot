@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
 
-import it.caldesi.webbot.model.bean.ClickInstruction;
-import it.caldesi.webbot.model.bean.Instruction;
+import it.caldesi.webbot.model.instruction.ClickInstruction;
+import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.XMLUtils;
 import javafx.event.ActionEvent;
