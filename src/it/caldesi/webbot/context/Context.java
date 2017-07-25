@@ -8,8 +8,10 @@ import java.util.Map;
 
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.Utils;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Worker.State;
 
 public class Context {
 
@@ -21,6 +23,8 @@ public class Context {
 
 	private static String PACKAGE_INSTRUCTION = "it.caldesi.webbot.model.instruction";
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
+
+	public static ChangeListener<State> recordListener;
 
 	public static void loadContext() throws Exception {
 		instructionClassList = Utils.getClassesForPackage(PACKAGE_INSTRUCTION);

@@ -10,6 +10,7 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
@@ -114,7 +115,7 @@ public class RecordController implements Initializable {
 			System.out.println("JS alert() message: " + wEvent.getData());
 		});
 
-		webEngine.getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
+		Context.recordListener = new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				System.out.println("-----LOCATION----->" + webEngine.getLocation());
@@ -133,7 +134,9 @@ public class RecordController implements Initializable {
 					((EventTarget) el).addEventListener("click", listener, false);
 				}
 			}
-		});
+		};
+
+		webEngine.getLoadWorker().stateProperty().addListener(Context.recordListener);
 	}
 
 	private void loadPage(String url) {
@@ -187,7 +190,8 @@ public class RecordController implements Initializable {
 	}
 
 	public void executeScript() {
-		ScriptExecutor.executeScript(scriptTreeTable, webView);
+		ScriptExecutor scriptExecutor = new ScriptExecutor(webView);
+		scriptExecutor.executeScript(scriptTreeTable);
 	}
 
 }

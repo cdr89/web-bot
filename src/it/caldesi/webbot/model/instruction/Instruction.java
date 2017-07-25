@@ -14,6 +14,7 @@ public abstract class Instruction<T> {
 	protected String label;
 	protected String objectXPath;
 	protected List<String> args;
+	protected long delay;
 
 	public Instruction() {
 		args = new LinkedList<>();
@@ -54,6 +55,14 @@ public abstract class Instruction<T> {
 
 	public void setArgs(List<String> args) {
 		this.args = args;
+	}
+
+	public long getDelay() {
+		return delay;
+	}
+
+	public void setDelay(long delay) {
+		this.delay = delay;
 	}
 
 	public abstract String toJSCode();
