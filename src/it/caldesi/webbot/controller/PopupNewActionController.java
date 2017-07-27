@@ -77,6 +77,8 @@ public class PopupNewActionController implements Initializable {
 	}
 
 	public void initEventData(Event ev) {
+		if (ev == null)
+			return;
 		Element el = (Element) ev.getTarget();
 		String xPath = XMLUtils.getFullXPath(el);
 		xpathField.setText(xPath);

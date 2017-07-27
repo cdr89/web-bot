@@ -122,7 +122,10 @@ public class RecordController implements Initializable {
 			public void handle(MouseEvent mouseEvent) {
 				if (mouseEvent.getClickCount() == 2) {
 					TreeItem<Instruction<?>> item = scriptTreeTable.getSelectionModel().getSelectedItem();
-					editActionPopup(item);
+					if (item != null)
+						editActionPopup(item);
+					else
+						newActionPopup(null);
 				}
 			}
 		});
