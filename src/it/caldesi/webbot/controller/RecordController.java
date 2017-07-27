@@ -18,6 +18,7 @@ import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
 import javafx.event.EventHandler;
@@ -35,6 +36,8 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
@@ -43,11 +46,13 @@ import javafx.stage.Stage;
 
 public class RecordController implements Initializable {
 
-	@FXML
-	private WebView webView;
+	public final static int GLOBAL_DELAY = 200;
 
 	@FXML
-	private TreeTableView<Instruction<?>> scriptTreeTable;
+	public WebView webView;
+
+	@FXML
+	public TreeTableView<Instruction<?>> scriptTreeTable;
 
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColLabel;
@@ -59,13 +64,13 @@ public class RecordController implements Initializable {
 	private TreeTableColumn<Instruction<?>, String> treeColArgs;
 
 	@FXML
-	private Button goButton;
+	public Button goButton;
 	@FXML
-	private Button executeButton;
+	public Button executeButton;
 	@FXML
-	private TextField addressTextField;
+	public TextField addressTextField;
 
-	private WebEngine webEngine;
+	public WebEngine webEngine;
 
 	@FXML
 	private ResourceBundle resources;
@@ -109,6 +114,7 @@ public class RecordController implements Initializable {
 	}
 
 	public void initWebView(ResourceBundle recordBundle) {
+		System.out.println("INIT WebView");
 		webEngine = webView.getEngine();
 
 		webEngine.setOnAlert((WebEvent<String> wEvent) -> {
@@ -118,8 +124,8 @@ public class RecordController implements Initializable {
 		Context.recordListener = new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
-				System.out.println("-----LOCATION----->" + webEngine.getLocation());
-				System.out.println("State: " + ov.getValue().toString());
+				System.out.println("[recordListener] -----LOCATION----->" + webEngine.getLocation());
+				System.out.println("[recordListener] State: " + ov.getValue().toString());
 				addressTextField.setText(webEngine.getLocation());
 
 				if (newState == Worker.State.SUCCEEDED) {
@@ -190,8 +196,16 @@ public class RecordController implements Initializable {
 	}
 
 	public void executeScript() {
-		ScriptExecutor scriptExecutor = new ScriptExecutor(webView);
-		scriptExecutor.executeScript(scriptTreeTable);
+		webEngine.getLoadWorker().stateProperty().removeListener(Context.recordListener);
+		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
+		rows.parallelStream().forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf("#ffffff"))));
+
+		executeButton.setDisable(true);
+		goButton.setDisable(true);
+		addressTextField.setDisable(true);
+
+		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
+		new Thread(scriptExecutor).start();
 	}
 
 }
