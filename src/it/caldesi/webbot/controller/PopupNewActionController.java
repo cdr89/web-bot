@@ -33,6 +33,8 @@ public class PopupNewActionController implements Initializable {
 	TextField delayField;
 	@FXML
 	TextField labelField;
+	@FXML
+	TextField argField;
 
 	@FXML
 	ComboBox<String> actionCombobox;
@@ -91,6 +93,7 @@ public class PopupNewActionController implements Initializable {
 		actionCombobox.setValue(instruction.getActionName());
 		xpathField.setText(instruction.getObjectXPath());
 		labelField.setText(instruction.getLabel());
+		argField.setText(instruction.getArg());
 		delayField.setText(Long.toString(instruction.getDelay()));
 	}
 
@@ -103,6 +106,7 @@ public class PopupNewActionController implements Initializable {
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
 		instruction.setObjectXPath(xpathField.getText());
 		instruction.setLabel(labelField.getText());
+		instruction.setArg(argField.getText());
 		try {
 			instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {

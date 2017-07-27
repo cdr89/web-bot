@@ -26,6 +26,12 @@
 				</HBox>
 				<HBox prefHeight="100.0" prefWidth="200.0">
 					<children>
+						<Label text="Arg:" />
+						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="argField" />
+					</children>
+				</HBox>
+				<HBox prefHeight="100.0" prefWidth="200.0">
+					<children>
 						<Label text="Label:" />
 						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="labelField" />
 					</children>

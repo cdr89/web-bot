@@ -1,5 +1,7 @@
 package it.caldesi.webbot.model.instruction;
 
+import java.io.File;
+
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.utils.UIUtils;
@@ -20,10 +22,11 @@ public class TakeScreenshotInstruction extends Instruction<Void> {
 
 	@Override
 	public Void execute(WebView webView) throws GenericException {
-		if (args == null || args.isEmpty())
+		if (arg == null || arg.trim().isEmpty())
 			throw new ArgumentRequiredException("filePath");
 		try {
-			UIUtils.takeScreenshot(webView, args.get(0));
+			File output = UIUtils.takeScreenshot(webView, arg);
+			System.out.println(output.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new GenericException(e);

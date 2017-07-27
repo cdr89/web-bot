@@ -22,10 +22,13 @@ public class UIUtils {
 		stage.close();
 	}
 
-	public static void takeScreenshot(WebView webView, String path) throws Exception {
+	public static File takeScreenshot(WebView webView, String path) throws Exception {
 		WritableImage image = webView.snapshot(null, null);
 		BufferedImage bufferedImage = SwingFXUtils.fromFXImage(image, null);
-		ImageIO.write(bufferedImage, "png", new File(path));
+		File output = new File(path);
+		ImageIO.write(bufferedImage, "png", output);
+
+		return output;
 	}
 
 	public static UnaryOperator<Change> getIntegerFieldFormatter(boolean onlyPositive) {

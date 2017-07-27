@@ -19,9 +19,9 @@ public class GoToPageInstruction extends Instruction<Void> {
 
 	@Override
 	public Void execute(WebView webView) throws GenericException {
-		if (args == null || args.isEmpty())
+		if (arg == null || arg.trim().isEmpty())
 			throw new ArgumentRequiredException("URL");
-		webView.getEngine().load(args.get(0));
+		webView.getEngine().load(arg);
 		return null;
 	}
 

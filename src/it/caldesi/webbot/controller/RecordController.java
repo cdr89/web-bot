@@ -1,7 +1,6 @@
 package it.caldesi.webbot.controller;
 
 import java.net.URL;
-import java.util.LinkedList;
 import java.util.ResourceBundle;
 
 import org.w3c.dom.Document;
@@ -95,7 +94,7 @@ public class RecordController implements Initializable {
 		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("label"));
 		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));
 		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("objectXPath"));
-		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("args"));
+		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("arg"));
 		treeColDelay.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("delay"));
 
 		// root node
@@ -229,9 +228,7 @@ public class RecordController implements Initializable {
 		url = Utils.adjustUrl(url);
 		loadPage(url);
 		Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
-		LinkedList<String> args = new LinkedList<>();
-		args.add(url);
-		instruction.setArgs(args);
+		instruction.setArg(url);
 		appendInstructionToList(instruction);
 	}
 

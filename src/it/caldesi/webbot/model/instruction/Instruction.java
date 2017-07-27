@@ -1,8 +1,5 @@
 package it.caldesi.webbot.model.instruction;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebView;
@@ -13,11 +10,10 @@ public abstract class Instruction<T> {
 
 	protected String label;
 	protected String objectXPath;
-	protected List<String> args;
+	protected String arg;
 	protected long delay;
 
 	public Instruction() {
-		args = new LinkedList<>();
 	}
 
 	protected Instruction(String actionName) {
@@ -49,12 +45,12 @@ public abstract class Instruction<T> {
 		this.objectXPath = objectXPath;
 	}
 
-	public List<String> getArgs() {
-		return args;
+	public String getArg() {
+		return arg;
 	}
 
-	public void setArgs(List<String> args) {
-		this.args = args;
+	public void setArg(String arg) {
+		this.arg = arg;
 	}
 
 	public long getDelay() {
