@@ -145,6 +145,9 @@ public class ScriptExecutor implements Runnable {
 		while (hasNextInstruction() && !failed) {
 			waitFor(globalDelay);
 
+			if (failed)
+				break;
+
 			try {
 				currentInstruction = nextInstruction();
 				executing(currentInstruction);
