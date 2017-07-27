@@ -39,16 +39,12 @@ public class ScriptExecutor implements Runnable {
 		this.execSemaphore = new Semaphore(1);
 
 		playListener = new ChangeListener<State>() {
+			boolean mutexAcquired = false;
+
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				System.out
 						.println("[playListener] number of execSemaphore permits: " + execSemaphore.availablePermits());
-				// try {
-				// System.out.println("[playListener] Acquire mutex");
-				// mutex.acquire();
-				// } catch (InterruptedException e) {
-				// e.printStackTrace();
-				// }
 
 				System.out.println("[playListener] -----LOCATION----->" + recordController.webEngine.getLocation());
 				System.out.println("[playListener] State: " + ov.getValue().toString());
@@ -58,9 +54,10 @@ public class ScriptExecutor implements Runnable {
 
 				if (newState == State.SCHEDULED || newState == State.READY || newState == State.RUNNING) {
 					try {
-						if (mutex.availablePermits() == 1) {
+						if (!mutexAcquired) {
 							System.out.println("[playListener] Acquire mutex");
 							mutex.acquire();
+							mutexAcquired = true;
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -78,9 +75,10 @@ public class ScriptExecutor implements Runnable {
 						System.out.println("Release execSemaphore from listener in state: " + newState.name());
 					}
 
-					if (mutex.availablePermits() == 0) {
+					if (mutexAcquired) {
 						System.out.println("[playListener] Release mutex");
 						mutex.release();
+						mutexAcquired = false;
 					}
 				}
 
@@ -148,6 +146,9 @@ public class ScriptExecutor implements Runnable {
 			waitFor(globalDelay);
 
 			try {
+				currentInstruction = nextInstruction();
+				executing(currentInstruction);
+
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
 
@@ -155,9 +156,6 @@ public class ScriptExecutor implements Runnable {
 					failed = true;
 					break;
 				}
-
-				currentInstruction = nextInstruction();
-				executing(currentInstruction);
 
 				Runnable instructionRunnable = () -> {
 					final TreeItem<Instruction<?>> instr = currentInstruction;
