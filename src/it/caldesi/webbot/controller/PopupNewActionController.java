@@ -101,7 +101,12 @@ public class PopupNewActionController implements Initializable {
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
 		instruction.setObjectXPath(xpathField.getText());
 		instruction.setLabel(labelField.getText());
-		instruction.setDelay(Long.parseLong(delayField.getText()));
+		try {
+			instruction.setDelay(Long.parseLong(delayField.getText()));
+		} catch (Exception e) {
+			instruction.setDelay(0);
+			e.printStackTrace();
+		}
 
 		return instruction;
 	}

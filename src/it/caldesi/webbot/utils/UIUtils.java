@@ -31,7 +31,7 @@ public class UIUtils {
 	public static UnaryOperator<Change> getIntegerFieldFormatter(boolean onlyPositive) {
 		UnaryOperator<Change> integerFilter = change -> {
 			String newText = change.getControlNewText();
-			String regex = "([1-9][0-9]*)?";
+			String regex = "(0|[1-9][0-9]*)?";
 			if (!onlyPositive)
 				regex = "-?" + regex;
 			if (newText.matches(regex)) {

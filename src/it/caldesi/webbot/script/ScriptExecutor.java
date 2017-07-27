@@ -58,24 +58,24 @@ public class ScriptExecutor implements Runnable {
 							System.out.println("[playListener] Acquire mutex");
 							mutex.acquire();
 							mutexAcquired = true;
+
+							boolean tryAcquire = execSemaphore.tryAcquire();
+							if (!tryAcquire) {
+								System.out.println("Failed tryAquire of execSemaphore in state: " + newState.name());
+							} else {
+								System.out.println("TryAquire of execSemaphore success in state: " + newState.name());
+							}
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
-					boolean tryAcquire = execSemaphore.tryAcquire();
-					if (!tryAcquire) {
-						System.out.println("Failed tryAquire of execSemaphore in state: " + newState.name());
-					} else {
-						System.out.println("TryAquire of execSemaphore success in state: " + newState.name());
-					}
 				} else { // can go
-					if (execSemaphore.availablePermits() == 0) {
-						execSemaphore.release();
-						System.out.println("Release execSemaphore from listener in state: " + newState.name());
-					}
-
 					if (mutexAcquired) {
+						if (execSemaphore.availablePermits() == 0) {
+							execSemaphore.release();
+							System.out.println("Release execSemaphore from listener in state: " + newState.name());
+						}
+
 						System.out.println("[playListener] Release mutex");
 						mutex.release();
 						mutexAcquired = false;
@@ -151,6 +151,7 @@ public class ScriptExecutor implements Runnable {
 
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
+				waitFor(currentInstruction.getValue().getDelay());
 
 				if (lastState == State.CANCELLED || lastState == State.FAILED) {
 					failed = true;
@@ -167,7 +168,6 @@ public class ScriptExecutor implements Runnable {
 								+ execSemaphore.availablePermits());
 						execSemaphore.acquire();
 						execute(instr);
-						waitFor(instr.getValue().getDelay());
 					} catch (Exception e) {
 						e.printStackTrace();
 						failed(instr);
