@@ -49,7 +49,6 @@ public class ScriptExecutor implements Runnable {
 				System.out.println("[playListener] -----LOCATION----->" + recordController.webEngine.getLocation());
 				System.out.println("[playListener] State: " + ov.getValue().toString());
 				// update state variables
-				// previousState = oldState;
 				lastState = newState;
 
 				if (newState == State.SCHEDULED || newState == State.READY || newState == State.RUNNING) {
@@ -133,7 +132,6 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	// private State previousState;
 	private State lastState;
 	private long globalDelay;
 	TreeItem<Instruction<?>> currentInstruction;
@@ -183,8 +181,6 @@ public class ScriptExecutor implements Runnable {
 				};
 				Thread instrThread = new Thread(instructionRunnable);
 				Platform.runLater(instrThread);
-
-				// instrThread.join();
 			} catch (Exception e) {
 				e.printStackTrace();
 				onFinish();
