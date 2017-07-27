@@ -26,7 +26,7 @@ public class TakeScreenshotInstruction extends Instruction<Void> {
 			throw new ArgumentRequiredException("filePath");
 		try {
 			File output = UIUtils.takeScreenshot(webView, arg);
-			System.out.println(output.getAbsolutePath());
+			System.out.println("Screenshot saved: " + output.getAbsolutePath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new GenericException(e);
