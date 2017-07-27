@@ -20,7 +20,20 @@
 				<HBox prefHeight="35.0" prefWidth="300.0">
 					<children>
 						<Label text="Action:" />
-						<ComboBox fx:id="actionCombobox" prefHeight="25.0" prefWidth="233.0" />
+						<ComboBox fx:id="actionCombobox" prefHeight="25.0"
+							prefWidth="233.0" />
+					</children>
+				</HBox>
+				<HBox prefHeight="100.0" prefWidth="200.0">
+					<children>
+						<Label text="Label:" />
+						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="labelField" />
+					</children>
+				</HBox>
+				<HBox prefHeight="100.0" prefWidth="200.0">
+					<children>
+						<Label text="Delay:" />
+						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="delayField" />
 					</children>
 				</HBox>
 				<HBox prefHeight="33.0" prefWidth="300.0">

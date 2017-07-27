@@ -15,6 +15,7 @@ import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
 import it.caldesi.webbot.script.ScriptExecutor;
+import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.Utils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -36,6 +37,7 @@ import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
@@ -62,6 +64,8 @@ public class RecordController implements Initializable {
 	private TreeTableColumn<Instruction<?>, String> treeColObj;
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColArgs;
+	@FXML
+	private TreeTableColumn<Instruction<?>, String> treeColDelay;
 
 	@FXML
 	public Button goButton;
@@ -92,6 +96,7 @@ public class RecordController implements Initializable {
 		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));
 		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("objectXPath"));
 		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("args"));
+		treeColDelay.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("delay"));
 
 		// root node
 		Instruction<?> root = new NullInstruction();
@@ -108,6 +113,16 @@ public class RecordController implements Initializable {
 					if (keyEvent.getCode().equals(KeyCode.DELETE)) {
 						selectedItem.getParent().getChildren().remove(selectedItem);
 					}
+				}
+			}
+		});
+
+		scriptTreeTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseEvent) {
+				if (mouseEvent.getClickCount() == 2) {
+					TreeItem<Instruction<?>> item = scriptTreeTable.getSelectionModel().getSelectedItem();
+					editActionPopup(item);
 				}
 			}
 		});
@@ -171,6 +186,26 @@ public class RecordController implements Initializable {
 		}
 	}
 
+	private void editActionPopup(TreeItem<Instruction<?>> instruction) {
+		try {
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/popup_new_action.fxml"),
+					resources);
+			Parent root1 = loader.load();
+
+			Stage stage = new Stage();
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.setTitle("Edit Action");
+			stage.setScene(new Scene(root1));
+
+			PopupNewActionController controller = loader.<PopupNewActionController> getController();
+			controller.initActionData(instruction);
+
+			stage.show();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void appendInstructionToList(Instruction<?> instruction) {
 		TreeItem<Instruction<?>> item = new TreeItem<>(instruction);
 
@@ -180,6 +215,8 @@ public class RecordController implements Initializable {
 		} else {
 			root.getChildren().add(item);
 		}
+
+		item.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
 	}
 
 	public void goToAddress() {
@@ -198,7 +235,8 @@ public class RecordController implements Initializable {
 	public void executeScript() {
 		webEngine.getLoadWorker().stateProperty().removeListener(Context.recordListener);
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
-		rows.parallelStream().forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf("#ffffff"))));
+		rows.parallelStream()
+				.forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT))));
 
 		executeButton.setDisable(true);
 		goButton.setDisable(true);

@@ -3,6 +3,7 @@ package it.caldesi.webbot.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
@@ -19,11 +20,19 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
+import javafx.scene.control.TextFormatter.Change;
+import javafx.scene.control.TreeItem;
+import javafx.util.converter.IntegerStringConverter;
 
 public class PopupNewActionController implements Initializable {
 
 	@FXML
 	TextField xpathField;
+	@FXML
+	TextField delayField;
+	@FXML
+	TextField labelField;
 
 	@FXML
 	ComboBox<String> actionCombobox;
@@ -34,6 +43,8 @@ public class PopupNewActionController implements Initializable {
 	Button cancelButton;
 
 	private Consumer<Instruction<?>> instructionCallBack;
+
+	private TreeItem<Instruction<?>> instructionItem;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -46,9 +57,12 @@ public class PopupNewActionController implements Initializable {
 				if (instructionCallBack != null) {
 					Instruction<?> instruction = buildInstruction();
 					instructionCallBack.accept(instruction);
-
-					UIUtils.closeDialogFromEvent(event);
+				} else if (instructionItem != null) {
+					Instruction<?> instruction = buildInstruction();
+					instructionItem.setValue(instruction);
 				}
+
+				UIUtils.closeDialogFromEvent(event);
 			}
 		});
 		cancelButton.setOnAction(new EventHandler<ActionEvent>() {
@@ -57,12 +71,25 @@ public class PopupNewActionController implements Initializable {
 				UIUtils.closeDialogFromEvent(event);
 			}
 		});
+
+		UnaryOperator<Change> integerFilter = UIUtils.getIntegerFieldFormatter(true);
+		delayField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 0, integerFilter));
 	}
 
 	public void initEventData(Event ev) {
 		Element el = (Element) ev.getTarget();
 		String xPath = XMLUtils.getFullXPath(el);
 		xpathField.setText(xPath);
+	}
+
+	public void initActionData(TreeItem<Instruction<?>> instructionItem) {
+		this.instructionItem = instructionItem;
+		Instruction<?> instruction = instructionItem.getValue();
+
+		actionCombobox.setValue(instruction.getActionName());
+		xpathField.setText(instruction.getObjectXPath());
+		labelField.setText(instruction.getLabel());
+		delayField.setText(Long.toString(instruction.getDelay()));
 	}
 
 	public void setInstructionCallback(Consumer<Instruction<?>> callback) {
@@ -73,6 +100,8 @@ public class PopupNewActionController implements Initializable {
 		String actionName = actionCombobox.getSelectionModel().getSelectedItem();
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
 		instruction.setObjectXPath(xpathField.getText());
+		instruction.setLabel(labelField.getText());
+		instruction.setDelay(Long.parseLong(delayField.getText()));
 
 		return instruction;
 	}

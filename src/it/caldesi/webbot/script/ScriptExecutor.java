@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.controller.RecordController;
 import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.utils.UIUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -127,6 +128,7 @@ public class ScriptExecutor implements Runnable {
 
 	public void waitFor(long time) {
 		try {
+			System.out.println("Waiting ms: " + time);
 			Thread.sleep(time);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
@@ -155,26 +157,27 @@ public class ScriptExecutor implements Runnable {
 				}
 
 				currentInstruction = nextInstruction();
-				Instruction<?> instruction = currentInstruction.getValue();
-
 				executing(currentInstruction);
 
-				waitFor(instruction.getDelay());
 				Runnable instructionRunnable = () -> {
 					final TreeItem<Instruction<?>> instr = currentInstruction;
 					try {
 						if (failed)
 							return;
+
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
 						execSemaphore.acquire();
 						execute(instr);
+						waitFor(instr.getValue().getDelay());
 					} catch (Exception e) {
 						e.printStackTrace();
 						failed(instr);
 						onFinish();
 					} finally {
 						execSemaphore.release();
+						System.out.println("[instructionRunnable] release execSemaphore, permits: "
+								+ execSemaphore.availablePermits());
 					}
 				};
 				Thread instrThread = new Thread(instructionRunnable);
@@ -201,24 +204,17 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	// private final Node rootIcon = new ImageView(new
-	// Image(getClass().getResourceAsStream("root.png")));
-
-	private static final String GREEN = "#68C953";
-	private static final String RED = "#CF3E3E";
-	private static final String YELLOW = "#EDAD18";
-
 	private void failed(TreeItem<Instruction<?>> currentInstruction2) {
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(RED)));
 		failed = true;
+		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
 	}
 
 	private void success(TreeItem<Instruction<?>> currentInstruction2) {
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(GREEN)));
+		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
 	}
 
 	private void executing(TreeItem<Instruction<?>> currentInstruction2) {
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(YELLOW)));
+		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
 	}
 
 }
