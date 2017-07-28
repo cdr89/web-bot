@@ -12,7 +12,6 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
@@ -98,6 +97,8 @@ public class RecordController implements Initializable {
 	private Timeline scrolltimeline = new Timeline();
 	private double scrollDirection = 0;
 
+	public ChangeListener<State> recordListener;
+
 	public RecordController() {
 	}
 
@@ -142,7 +143,7 @@ public class RecordController implements Initializable {
 			System.out.println("JS alert() message: " + wEvent.getData());
 		});
 
-		Context.recordListener = new ChangeListener<State>() {
+		this.recordListener = new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				System.out.println("[recordListener] -----LOCATION----->" + webEngine.getLocation());
@@ -185,7 +186,7 @@ public class RecordController implements Initializable {
 			}
 		};
 
-		webEngine.getLoadWorker().stateProperty().addListener(Context.recordListener);
+		webEngine.getLoadWorker().stateProperty().addListener(recordListener);
 	}
 
 	private void loadPage(String url) {
@@ -214,7 +215,7 @@ public class RecordController implements Initializable {
 				try {
 					String highlighJS = FileUtils.readFile(resource);
 					webView.getEngine().executeScript(highlighJS);
-				} catch (IOException e) {
+				} catch (Exception e) {
 					// ignore TODO log e.printStackTrace();
 				}
 			});
@@ -270,7 +271,7 @@ public class RecordController implements Initializable {
 	}
 
 	public void executeScript() {
-		webEngine.getLoadWorker().stateProperty().removeListener(Context.recordListener);
+		webEngine.getLoadWorker().stateProperty().removeListener(recordListener);
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
 		rows.parallelStream()
 				.forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT))));

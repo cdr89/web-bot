@@ -3,7 +3,6 @@ package it.caldesi.webbot.script;
 import java.util.Iterator;
 import java.util.concurrent.Semaphore;
 
-import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.controller.RecordController;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
@@ -18,11 +17,16 @@ import javafx.scene.shape.Circle;
 
 public class ScriptExecutor implements Runnable {
 
+	private static int SET_GRAPHIC_DELAY = 100;
+
 	private Iterator<TreeItem<Instruction<?>>> iteratorOnIstructions;
 	private ChangeListener<State> playListener;
 
 	private Semaphore mutex;
 	private Semaphore execSemaphore;
+	// the following semaphore is to avoid setGraphic delay if another thread is
+	// executing using Platform.runLater()
+	private Semaphore graphicChangeSemaphore;
 
 	private RecordController recordController;
 
@@ -37,6 +41,7 @@ public class ScriptExecutor implements Runnable {
 		this.globalDelay = globalDelay;
 		this.mutex = new Semaphore(1);
 		this.execSemaphore = new Semaphore(1);
+		this.graphicChangeSemaphore = new Semaphore(1);
 
 		playListener = new ChangeListener<State>() {
 			boolean mutexAcquired = false;
@@ -112,7 +117,7 @@ public class ScriptExecutor implements Runnable {
 
 		Runnable instructionRunnable = () -> {
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
-			recordController.webEngine.getLoadWorker().stateProperty().addListener(Context.recordListener);
+			recordController.webEngine.getLoadWorker().stateProperty().addListener(recordController.recordListener);
 			System.out.println("Enabling controls");
 			recordController.executeButton.setDisable(false);
 			recordController.goButton.setDisable(false);
@@ -124,6 +129,8 @@ public class ScriptExecutor implements Runnable {
 	}
 
 	public void waitFor(long time) {
+		if (time == 0)
+			return;
 		try {
 			System.out.println("Waiting ms: " + time);
 			Thread.sleep(time);
@@ -152,6 +159,8 @@ public class ScriptExecutor implements Runnable {
 
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
+				execSemaphore.acquire();
+				execSemaphore.release();
 				waitFor(currentInstruction.getValue().getDelay());
 
 				if (lastState == State.CANCELLED || lastState == State.FAILED) {
@@ -167,7 +176,7 @@ public class ScriptExecutor implements Runnable {
 
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
-						execSemaphore.acquire();
+						//execSemaphore.acquire();
 						execute(instr);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -180,7 +189,10 @@ public class ScriptExecutor implements Runnable {
 					}
 				};
 				Thread instrThread = new Thread(instructionRunnable);
+				graphicChangeSemaphore.acquire();
+				execSemaphore.acquire();
 				Platform.runLater(instrThread);
+				graphicChangeSemaphore.release();
 			} catch (Exception e) {
 				e.printStackTrace();
 				onFinish();
@@ -190,6 +202,7 @@ public class ScriptExecutor implements Runnable {
 			}
 		}
 
+		waitFor(globalDelay);
 		try {
 			mutex.acquire();
 			execSemaphore.acquire();
@@ -203,25 +216,46 @@ public class ScriptExecutor implements Runnable {
 
 	private void failed(TreeItem<Instruction<?>> currentInstruction2) {
 		failed = true;
-		Runnable changeGrapics = () -> {
-			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
-		};
-		Platform.runLater(changeGrapics);
+		try {
+			graphicChangeSemaphore.acquire();
+			Runnable changeGrapics = () -> {
+				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
+				waitFor(SET_GRAPHIC_DELAY);
+				graphicChangeSemaphore.release();
+			};
+			Platform.runLater(changeGrapics);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 	}
 
 	private void success(TreeItem<Instruction<?>> currentInstruction2) {
-		Runnable changeGrapics = () -> {
-			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
-		};
-		Platform.runLater(changeGrapics);
+		try {
+			graphicChangeSemaphore.acquire();
+			Runnable changeGrapics = () -> {
+				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
+				waitFor(SET_GRAPHIC_DELAY);
+				graphicChangeSemaphore.release();
+			};
+			Platform.runLater(changeGrapics);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void executing(TreeItem<Instruction<?>> currentInstruction2) {
-		Runnable changeGrapics = () -> {
-			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
-		};
-		Platform.runLater(changeGrapics);
+		try {
+			graphicChangeSemaphore.acquire();
+			Runnable changeGrapics = () -> {
+				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
+				waitFor(SET_GRAPHIC_DELAY);
+				graphicChangeSemaphore.release();
+			};
+			Platform.runLater(changeGrapics);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 }
