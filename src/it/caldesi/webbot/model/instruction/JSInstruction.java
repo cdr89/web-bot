@@ -6,6 +6,7 @@ import java.util.Map;
 
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.utils.FileUtils;
+import it.caldesi.webbot.utils.JSUtils;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
@@ -24,7 +25,7 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 		String script = FileUtils.readFile(resource);
 
 		if (paramValues != null)
-			script = FileUtils.loadParametrizedJS(script, paramValues);
+			script = JSUtils.loadParametrizedJS(script, paramValues);
 
 		return script;
 	}

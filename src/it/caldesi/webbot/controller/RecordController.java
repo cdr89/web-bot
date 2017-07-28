@@ -2,6 +2,8 @@ package it.caldesi.webbot.controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.w3c.dom.Document;
@@ -16,6 +18,7 @@ import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.FileUtils;
+import it.caldesi.webbot.utils.JSUtils;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.Utils;
 import it.caldesi.webbot.utils.XMLUtils;
@@ -26,7 +29,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker;
 import javafx.concurrent.Worker.State;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -123,35 +125,11 @@ public class RecordController implements Initializable {
 		scriptTreeTable.setShowRoot(false);
 
 		// keyboard delete item listener
-		scriptTreeTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
-			@Override
-			public void handle(final KeyEvent keyEvent) {
-				final TreeItem<Instruction<?>> selectedItem = scriptTreeTable.getSelectionModel().getSelectedItem();
-				if (selectedItem != null) {
-					if (keyEvent.getCode().equals(KeyCode.DELETE)) {
-						selectedItem.getParent().getChildren().remove(selectedItem);
-					}
-				}
-			}
-		});
-
+		scriptTreeTable.setOnKeyPressed(this::keyPressListener);
 		// mouse double click new/edit listener
-		scriptTreeTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(MouseEvent mouseEvent) {
-				if (mouseEvent.getClickCount() == 2) {
-					TreeItem<Instruction<?>> item = scriptTreeTable.getSelectionModel().getSelectedItem();
-					if (item != null)
-						editActionPopup(item);
-					else
-						newActionPopup(null);
-				}
-			}
-		});
-
+		scriptTreeTable.setOnMouseClicked(this::mouseListener);
 		// drag and drop
 		scriptTreeTable.setRowFactory(this::rowFactory);
-
 		// scrolling
 		setupScrolling();
 	}
@@ -185,9 +163,17 @@ public class RecordController implements Initializable {
 							// highlight component
 							Element el = (Element) ev.getTarget();
 							String xPath = XMLUtils.getFullXPath(el);
-							webView.getEngine()
-									.executeScript("var elToHilight = getElementByXPath( \"" + xPath + "\" );");
-							webView.getEngine().executeScript("highlight( elToHilight );");
+
+							URL resource = getClass().getResource("/it/caldesi/webbot/js/highlightElement.js");
+							try {
+								String highlighJS = FileUtils.readFile(resource);
+								Map<String, String> paramValues = new HashMap<>();
+								paramValues.put("xPath", xPath);
+								highlighJS = JSUtils.loadParametrizedJS(highlighJS, paramValues);
+								webView.getEngine().executeScript(highlighJS);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
 							newActionPopup(ev);
 						}
 					};
@@ -223,7 +209,14 @@ public class RecordController implements Initializable {
 			controller.setInstructionCallback(instruction -> {
 				if (instruction != null)
 					appendInstructionToList(instruction);
-				webView.getEngine().executeScript("highlight( null );");
+
+				URL resource = getClass().getResource("/it/caldesi/webbot/js/removeHighlight.js");
+				try {
+					String highlighJS = FileUtils.readFile(resource);
+					webView.getEngine().executeScript(highlighJS);
+				} catch (IOException e) {
+					// ignore TODO log e.printStackTrace();
+				}
 			});
 
 			stage.show();
@@ -288,6 +281,25 @@ public class RecordController implements Initializable {
 
 		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
 		new Thread(scriptExecutor).start();
+	}
+
+	private void mouseListener(MouseEvent mouseEvent) {
+		if (mouseEvent.getClickCount() == 2) {
+			TreeItem<Instruction<?>> item = scriptTreeTable.getSelectionModel().getSelectedItem();
+			if (item != null)
+				editActionPopup(item);
+			else
+				newActionPopup(null);
+		}
+	}
+
+	private void keyPressListener(final KeyEvent keyEvent) {
+		final TreeItem<Instruction<?>> selectedItem = scriptTreeTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null) {
+			if (keyEvent.getCode().equals(KeyCode.DELETE)) {
+				selectedItem.getParent().getChildren().remove(selectedItem);
+			}
+		}
 	}
 
 	private TreeTableRow<Instruction<?>> rowFactory(TreeTableView<Instruction<?>> view) {
