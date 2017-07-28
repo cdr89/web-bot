@@ -61,8 +61,6 @@ public abstract class Instruction<T> {
 		this.delay = delay;
 	}
 
-	public abstract String toJSCode();
-
 	public abstract T execute(WebView webView) throws GenericException;
 
 	public static class Builder {

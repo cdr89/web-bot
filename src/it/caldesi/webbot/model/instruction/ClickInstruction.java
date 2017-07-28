@@ -1,10 +1,12 @@
 package it.caldesi.webbot.model.instruction;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import it.caldesi.webbot.exception.GenericException;
-import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
-public class ClickInstruction extends Instruction<Void> {
+public class ClickInstruction extends JSInstruction<Void> {
 
 	public static final String NAME = "click";
 
@@ -13,19 +15,18 @@ public class ClickInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public String toJSCode() {
-		return ""; // TODO
+	public Void execute(WebView webView) throws GenericException {
+		Map<String, String> paramValues = new HashMap<>();
+		// TODO escape the XPath
+		paramValues.put("objectXPath", objectXPath);
+		executeJS(webView, paramValues);
+
+		return null;
 	}
 
 	@Override
-	public Void execute(WebView webView) throws GenericException {
-		WebEngine engine = webView.getEngine();
-		// TODO escape the XPath
-		String script = "var element = document.evaluate( \"" + objectXPath
-				+ "\" ,document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue.click();";
-		engine.executeScript(script);
-
-		return null;
+	protected String getJSFileName() {
+		return "click.js";
 	}
 
 }

@@ -12,11 +12,6 @@ public class ReloadPageInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public String toJSCode() {
-		return ""; // TODO
-	}
-
-	@Override
 	public Void execute(WebView webView) throws GenericException {
 		webView.getEngine().reload();
 		return null;

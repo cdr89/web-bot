@@ -6,11 +6,11 @@ import java.util.Map;
 import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebView;
 
-public class SetValueInstruction extends JSInstruction<Void> {
+public class SetInnerTextInstruction extends JSInstruction<Void> {
 
-	public static final String NAME = "setValue";
+	public static final String NAME = "setInnerText";
 
-	public SetValueInstruction() {
+	public SetInnerTextInstruction() {
 		super(NAME);
 	}
 

@@ -15,6 +15,7 @@ import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.NullInstruction;
 import it.caldesi.webbot.script.ScriptExecutor;
+import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.Utils;
 import it.caldesi.webbot.utils.XMLUtils;
@@ -150,7 +151,7 @@ public class RecordController implements Initializable {
 				if (newState == Worker.State.SUCCEEDED) {
 					try {
 						URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
-						String script = Utils.readFile(resource);
+						String script = FileUtils.readFile(resource);
 						webView.getEngine().executeScript(script);
 					} catch (IOException e) {
 						e.printStackTrace();

@@ -13,11 +13,6 @@ public class GoToPageInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public String toJSCode() {
-		return ""; // TODO
-	}
-
-	@Override
 	public Void execute(WebView webView) throws GenericException {
 		if (arg == null || arg.trim().isEmpty())
 			throw new ArgumentRequiredException("URL");

@@ -10,11 +10,6 @@ public class NullInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public String toJSCode() {
-		return "";
-	}
-
-	@Override
 	public Void execute(WebView webView) throws GenericException {
 		return null;
 	}

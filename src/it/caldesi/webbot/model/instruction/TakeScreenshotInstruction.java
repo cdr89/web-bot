@@ -16,11 +16,6 @@ public class TakeScreenshotInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public String toJSCode() {
-		return "";
-	}
-
-	@Override
 	public Void execute(WebView webView) throws GenericException {
 		if (arg == null || arg.trim().isEmpty())
 			throw new ArgumentRequiredException("filePath");
