@@ -114,8 +114,9 @@ public class ScriptExecutor implements Runnable {
 	private void onFinish() {
 		if (finished)
 			return;
+		finished = true;
 
-		Runnable instructionRunnable = () -> {
+		Runnable onFinishRunnable = () -> {
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
 			recordController.webEngine.getLoadWorker().stateProperty().addListener(recordController.recordListener);
 			System.out.println("Enabling controls");
@@ -123,9 +124,7 @@ public class ScriptExecutor implements Runnable {
 			recordController.goButton.setDisable(false);
 			recordController.addressTextField.setDisable(false);
 		};
-		Platform.runLater(instructionRunnable);
-
-		finished = true;
+		Platform.runLater(onFinishRunnable);
 	}
 
 	public void waitFor(long time) {
@@ -176,7 +175,7 @@ public class ScriptExecutor implements Runnable {
 
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
-						//execSemaphore.acquire();
+						// execSemaphore.acquire();
 						execute(instr);
 					} catch (Exception e) {
 						e.printStackTrace();

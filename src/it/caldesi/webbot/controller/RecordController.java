@@ -35,6 +35,8 @@ import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
@@ -90,7 +92,6 @@ public class RecordController implements Initializable {
 
 	public WebEngine webEngine;
 
-	@FXML
 	private ResourceBundle resources;
 
 	private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
@@ -104,6 +105,7 @@ public class RecordController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		this.resources = resources;
 		initWebView(resources);
 		initTreeTableView(resources);
 	}
@@ -271,6 +273,15 @@ public class RecordController implements Initializable {
 	}
 
 	public void executeScript() {
+		if (scriptTreeTable.getRoot().getChildren().isEmpty()) {
+			Alert alert = new Alert(AlertType.INFORMATION);
+			alert.setTitle(resources.getString("scene.record.alert.emptyScript.title"));
+			alert.setHeaderText(resources.getString("scene.record.alert.emptyScript.header"));
+			alert.setContentText(resources.getString("scene.record.alert.emptyScript.content"));
+			alert.showAndWait();
+			return;
+		}
+
 		webEngine.getLoadWorker().stateProperty().removeListener(recordListener);
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
 		rows.parallelStream()
