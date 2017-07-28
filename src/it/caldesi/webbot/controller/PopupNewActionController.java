@@ -71,6 +71,9 @@ public class PopupNewActionController implements Initializable {
 			@Override
 			public void handle(ActionEvent event) {
 				UIUtils.closeDialogFromEvent(event);
+				if (instructionCallBack != null) {
+					instructionCallBack.accept(null);
+				}
 			}
 		});
 

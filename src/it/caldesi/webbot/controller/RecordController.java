@@ -1,5 +1,6 @@
 package it.caldesi.webbot.controller;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -16,6 +17,7 @@ import it.caldesi.webbot.model.instruction.NullInstruction;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.Utils;
+import it.caldesi.webbot.utils.XMLUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -146,8 +148,22 @@ public class RecordController implements Initializable {
 				addressTextField.setText(webEngine.getLocation());
 
 				if (newState == Worker.State.SUCCEEDED) {
+					try {
+						URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
+						String script = Utils.readFile(resource);
+						webView.getEngine().executeScript(script);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
 					EventListener listener = new EventListener() {
 						public void handleEvent(Event ev) {
+							// highlight component
+							Element el = (Element) ev.getTarget();
+							String xPath = XMLUtils.getFullXPath(el);
+							webView.getEngine()
+									.executeScript("var elToHilight = getElementByXPath( \"" + xPath + "\" );");
+							webView.getEngine().executeScript("highlight( elToHilight );");
 							newActionPopup(ev);
 						}
 					};
@@ -180,7 +196,11 @@ public class RecordController implements Initializable {
 			PopupNewActionController controller = loader.<PopupNewActionController> getController();
 			controller.initEventData(ev);
 
-			controller.setInstructionCallback(instruction -> appendInstructionToList(instruction));
+			controller.setInstructionCallback(instruction -> {
+				if (instruction != null)
+					appendInstructionToList(instruction);
+				webView.getEngine().executeScript("highlight( null );");
+			});
 
 			stage.show();
 		} catch (Exception e) {
