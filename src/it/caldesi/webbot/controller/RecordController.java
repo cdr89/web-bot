@@ -99,6 +99,7 @@ public class RecordController implements Initializable {
 	private double scrollDirection = 0;
 
 	public ChangeListener<State> recordListener;
+	private EventListener clickElementListener;
 
 	public RecordController() {
 	}
@@ -145,23 +146,24 @@ public class RecordController implements Initializable {
 			System.out.println("JS alert() message: " + wEvent.getData());
 		});
 
-		this.recordListener = new ChangeListener<State>() {
+		addRecordListener();
+	}
+
+	public void addRecordListener() {
+		webEngine.getLoadWorker().stateProperty().addListener(recordListener = new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
+				if (!isFinishedExecution())
+					return;
+
 				System.out.println("[recordListener] -----LOCATION----->" + webEngine.getLocation());
 				System.out.println("[recordListener] State: " + ov.getValue().toString());
 				addressTextField.setText(webEngine.getLocation());
 
 				if (newState == Worker.State.SUCCEEDED) {
-					try {
-						URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
-						String script = FileUtils.readFile(resource);
-						webView.getEngine().executeScript(script);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+					onPageLoadSuccess();
 
-					EventListener listener = new EventListener() {
+					clickElementListener = new EventListener() {
 						public void handleEvent(Event ev) {
 							// highlight component
 							Element el = (Element) ev.getTarget();
@@ -183,12 +185,10 @@ public class RecordController implements Initializable {
 
 					Document doc = webEngine.getDocument();
 					Element el = doc.getDocumentElement();
-					((EventTarget) el).addEventListener("click", listener, false);
+					((EventTarget) el).addEventListener("click", clickElementListener, false);
 				}
 			}
-		};
-
-		webEngine.getLoadWorker().stateProperty().addListener(recordListener);
+		});
 	}
 
 	private void loadPage(String url) {
@@ -282,7 +282,8 @@ public class RecordController implements Initializable {
 			return;
 		}
 
-		webEngine.getLoadWorker().stateProperty().removeListener(recordListener);
+		executionFinished = false;
+
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
 		rows.parallelStream()
 				.forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT))));
@@ -447,6 +448,32 @@ public class RecordController implements Initializable {
 			}
 		}
 		return result;
+	}
+
+	private boolean executionFinished = true;
+	
+	public void onPageLoadSuccess(){
+		try {
+			URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
+			String script = FileUtils.readFile(resource);
+			webView.getEngine().executeScript(script);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void onFinishExecution() {
+		executionFinished = true;
+
+		Document doc = webEngine.getDocument();
+		Element el = doc.getDocumentElement();
+
+		((EventTarget) el).removeEventListener("click", clickElementListener, false);
+		((EventTarget) el).addEventListener("click", clickElementListener, false);
+	}
+
+	protected boolean isFinishedExecution() {
+		return executionFinished;
 	}
 
 }

@@ -57,23 +57,22 @@ public class ScriptExecutor implements Runnable {
 				lastState = newState;
 
 				if (newState == State.SCHEDULED || newState == State.READY || newState == State.RUNNING) {
-					try {
-						if (!mutexAcquired) {
-							System.out.println("[playListener] Acquire mutex");
-							mutex.acquire();
-							mutexAcquired = true;
+					if (!mutexAcquired) {
+						System.out.println("[playListener] Acquire mutex");
+						mutexAcquired = mutex.tryAcquire();
 
-							boolean tryAcquire = execSemaphore.tryAcquire();
-							if (!tryAcquire) {
-								System.out.println("Failed tryAquire of execSemaphore in state: " + newState.name());
-							} else {
-								System.out.println("TryAquire of execSemaphore success in state: " + newState.name());
-							}
+						boolean tryAcquire = execSemaphore.tryAcquire();
+						if (!tryAcquire) {
+							System.out.println("Failed tryAquire of execSemaphore in state: " + newState.name());
+						} else {
+							System.out.println("TryAquire of execSemaphore success in state: " + newState.name());
 						}
-					} catch (InterruptedException e) {
-						e.printStackTrace();
 					}
 				} else { // can go
+					if (newState == State.SUCCEEDED) {
+						recordController.onPageLoadSuccess();
+					}
+					
 					if (mutexAcquired) {
 						if (execSemaphore.availablePermits() == 0) {
 							execSemaphore.release();
@@ -85,10 +84,10 @@ public class ScriptExecutor implements Runnable {
 						mutexAcquired = false;
 					}
 				}
-
 			}
 		};
 
+		// recordController.webEngine.getLoadWorker().stateProperty().removeListener(recordController.recordListener);
 		recordController.webEngine.getLoadWorker().stateProperty().addListener(playListener);
 	}
 
@@ -117,8 +116,9 @@ public class ScriptExecutor implements Runnable {
 		finished = true;
 
 		Runnable onFinishRunnable = () -> {
+			waitFor(globalDelay);
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
-			recordController.webEngine.getLoadWorker().stateProperty().addListener(recordController.recordListener);
+			recordController.onFinishExecution();
 			System.out.println("Enabling controls");
 			recordController.executeButton.setDisable(false);
 			recordController.goButton.setDisable(false);
@@ -158,8 +158,6 @@ public class ScriptExecutor implements Runnable {
 
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
-				execSemaphore.acquire();
-				execSemaphore.release();
 				waitFor(currentInstruction.getValue().getDelay());
 
 				if (lastState == State.CANCELLED || lastState == State.FAILED) {
