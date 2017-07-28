@@ -19,6 +19,8 @@ import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.Utils;
 import it.caldesi.webbot.utils.XMLUtils;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -28,18 +30,26 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Orientation;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
@@ -47,6 +57,7 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class RecordController implements Initializable {
 
@@ -81,6 +92,10 @@ public class RecordController implements Initializable {
 	@FXML
 	private ResourceBundle resources;
 
+	private static final DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
+	private Timeline scrolltimeline = new Timeline();
+	private double scrollDirection = 0;
+
 	public RecordController() {
 	}
 
@@ -107,6 +122,7 @@ public class RecordController implements Initializable {
 		scriptTreeTable.setRoot(rootItem);
 		scriptTreeTable.setShowRoot(false);
 
+		// keyboard delete item listener
 		scriptTreeTable.setOnKeyPressed(new EventHandler<KeyEvent>() {
 			@Override
 			public void handle(final KeyEvent keyEvent) {
@@ -119,6 +135,7 @@ public class RecordController implements Initializable {
 			}
 		});
 
+		// mouse double click new/edit listener
 		scriptTreeTable.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent mouseEvent) {
@@ -131,6 +148,12 @@ public class RecordController implements Initializable {
 				}
 			}
 		});
+
+		// drag and drop
+		scriptTreeTable.setRowFactory(this::rowFactory);
+
+		// scrolling
+		setupScrolling();
 	}
 
 	public void initWebView(ResourceBundle recordBundle) {
@@ -265,6 +288,141 @@ public class RecordController implements Initializable {
 
 		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
 		new Thread(scriptExecutor).start();
+	}
+
+	private TreeTableRow<Instruction<?>> rowFactory(TreeTableView<Instruction<?>> view) {
+		TreeTableRow<Instruction<?>> row = new TreeTableRow<>();
+		row.setOnDragDetected(event -> {
+			if (!row.isEmpty()) {
+				Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+				db.setDragView(row.snapshot(null, null));
+				ClipboardContent cc = new ClipboardContent();
+				cc.put(SERIALIZED_MIME_TYPE, row.getIndex());
+				db.setContent(cc);
+				event.consume();
+			}
+		});
+
+		row.setOnDragOver(event -> {
+			// Dragboard db = event.getDragboard();
+			// if (acceptable(db, row)) {
+			// event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+			// event.consume();
+			// }
+			event.acceptTransferModes(TransferMode.MOVE);
+			event.consume();
+		});
+
+		row.setOnDragDropped(event -> {
+			Dragboard db = event.getDragboard();
+			// if (acceptable(db, row)) {
+			// int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+			// TreeItem<Instruction<?>> item =
+			// scriptTreeTable.getTreeItem(index);
+			// item.getParent().getChildren().remove(item);
+			// getTarget(row).getChildren().add(item);
+			// event.setDropCompleted(true);
+			// scriptTreeTable.getSelectionModel().select(item);
+			// event.consume();
+			// }
+			int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+			TreeItem<Instruction<?>> item = scriptTreeTable.getTreeItem(index);
+			item.getParent().getChildren().remove(item);
+
+			TreeItem<Instruction<?>> targetRow = getTarget(row);
+			// targetRow.getChildren().add(item);
+			int indexOfTarget = scriptTreeTable.getRoot().getChildren().indexOf(targetRow);
+			System.out.println("indexOfTarget: " + indexOfTarget);
+
+			if (indexOfTarget >= 0)
+				scriptTreeTable.getRoot().getChildren().add(indexOfTarget, item);
+			else
+				scriptTreeTable.getRoot().getChildren().add(item);
+
+			event.setDropCompleted(true);
+			scriptTreeTable.getSelectionModel().select(item);
+			event.consume();
+		});
+
+		return row;
+	}
+
+	// private boolean acceptable(Dragboard db, TreeTableRow<Instruction<?>>
+	// row) {
+	// boolean result = false;
+	// if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+	// int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+	// if (row.getIndex() != index) {
+	// TreeItem<Instruction<?>> target = getTarget(row);
+	// TreeItem<Instruction<?>> item = scriptTreeTable.getTreeItem(index);
+	// result = !isParent(item, target);
+	// }
+	// }
+	// return result;
+	// }
+
+	private TreeItem<Instruction<?>> getTarget(TreeTableRow<Instruction<?>> row) {
+		TreeItem<Instruction<?>> target = scriptTreeTable.getRoot();
+		if (!row.isEmpty()) {
+			target = row.getTreeItem();
+		}
+		return target;
+	}
+
+	// prevent loops in the tree
+	// private boolean isParent(TreeItem<Instruction<?>> parent,
+	// TreeItem<Instruction<?>> child) {
+	// boolean result = false;
+	// while (!result && child != null) {
+	// result = child.getParent() == parent;
+	// child = child.getParent();
+	// }
+	// return result;
+	// }
+
+	private void setupScrolling() {
+		scrolltimeline.setCycleCount(Timeline.INDEFINITE);
+		scrolltimeline.getKeyFrames().add(new KeyFrame(Duration.millis(20), "Scoll", (ActionEvent) -> {
+			dragScroll();
+		}));
+		scriptTreeTable.setOnDragExited(event -> {
+			if (event.getY() > 0) {
+				scrollDirection = 1.0 / scriptTreeTable.getExpandedItemCount();
+			} else {
+				scrollDirection = -1.0 / scriptTreeTable.getExpandedItemCount();
+			}
+			scrolltimeline.play();
+		});
+		scriptTreeTable.setOnDragEntered(event -> {
+			scrolltimeline.stop();
+		});
+		scriptTreeTable.setOnDragDone(event -> {
+			scrolltimeline.stop();
+		});
+
+	}
+
+	private void dragScroll() {
+		ScrollBar sb = getVerticalScrollbar();
+		if (sb != null) {
+			double newValue = sb.getValue() + scrollDirection;
+			newValue = Math.min(newValue, 1.0);
+			newValue = Math.max(newValue, 0.0);
+			sb.setValue(newValue);
+		}
+	}
+
+	private ScrollBar getVerticalScrollbar() {
+		ScrollBar result = null;
+		for (Node n : scriptTreeTable.lookupAll(".scroll-bar")) {
+			if (n instanceof ScrollBar) {
+				ScrollBar bar = (ScrollBar) n;
+				if (bar.getOrientation().equals(Orientation.VERTICAL)) {
+					result = bar;
+				}
+			}
+		}
+		return result;
 	}
 
 }
