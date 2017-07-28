@@ -203,15 +203,25 @@ public class ScriptExecutor implements Runnable {
 
 	private void failed(TreeItem<Instruction<?>> currentInstruction2) {
 		failed = true;
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
+		Runnable changeGrapics = () -> {
+			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
+		};
+		Platform.runLater(changeGrapics);
+
 	}
 
 	private void success(TreeItem<Instruction<?>> currentInstruction2) {
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
+		Runnable changeGrapics = () -> {
+			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
+		};
+		Platform.runLater(changeGrapics);
 	}
 
 	private void executing(TreeItem<Instruction<?>> currentInstruction2) {
-		currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
+		Runnable changeGrapics = () -> {
+			currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
+		};
+		Platform.runLater(changeGrapics);
 	}
 
 }
