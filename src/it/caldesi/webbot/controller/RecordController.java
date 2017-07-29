@@ -1,6 +1,5 @@
 package it.caldesi.webbot.controller;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -101,6 +100,10 @@ public class RecordController implements Initializable {
 	public ChangeListener<State> recordListener;
 	private EventListener clickElementListener;
 
+	private static String functionsJS = FileUtils.readResource("/it/caldesi/webbot/js/functions.js");
+	private static String highlightJS = FileUtils.readResource("/it/caldesi/webbot/js/highlightElement.js");
+	private static String removeHighlightJS = FileUtils.readResource("/it/caldesi/webbot/js/removeHighlight.js");
+
 	public RecordController() {
 	}
 
@@ -169,14 +172,12 @@ public class RecordController implements Initializable {
 							Element el = (Element) ev.getTarget();
 							String xPath = XMLUtils.getFullXPath(el);
 
-							URL resource = getClass().getResource("/it/caldesi/webbot/js/highlightElement.js");
 							try {
-								String highlighJS = FileUtils.readFile(resource);
 								Map<String, String> paramValues = new HashMap<>();
 								paramValues.put("xPath", xPath);
-								highlighJS = JSUtils.loadParametrizedJS(highlighJS, paramValues);
-								webView.getEngine().executeScript(highlighJS);
-							} catch (IOException e) {
+								String highlightCompiled = JSUtils.loadParametrizedJS(highlightJS, paramValues);
+								webView.getEngine().executeScript(highlightCompiled);
+							} catch (Exception e) {
 								e.printStackTrace();
 							}
 							newActionPopup(ev);
@@ -213,10 +214,8 @@ public class RecordController implements Initializable {
 				if (instruction != null)
 					appendInstructionToList(instruction);
 
-				URL resource = getClass().getResource("/it/caldesi/webbot/js/removeHighlight.js");
 				try {
-					String highlighJS = FileUtils.readFile(resource);
-					webView.getEngine().executeScript(highlighJS);
+					webView.getEngine().executeScript(removeHighlightJS);
 				} catch (Exception e) {
 					// ignore TODO log e.printStackTrace();
 				}
@@ -453,13 +452,7 @@ public class RecordController implements Initializable {
 	private boolean executionFinished = true;
 
 	public void onPageLoadSuccess() {
-		try {
-			URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
-			String script = FileUtils.readFile(resource);
-			webView.getEngine().executeScript(script);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		webView.getEngine().executeScript(functionsJS);
 	}
 
 	public void onFinishExecution() {

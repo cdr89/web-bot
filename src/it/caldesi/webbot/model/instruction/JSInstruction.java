@@ -1,7 +1,6 @@
 package it.caldesi.webbot.model.instruction;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Map;
 
 import it.caldesi.webbot.exception.GenericException;
@@ -21,8 +20,8 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 	}
 
 	protected String getJSScript(Map<String, String> paramValues) throws IOException {
-		URL resource = getClass().getResource("/it/caldesi/webbot/js/instructions/" + getJSFileName());
-		String script = FileUtils.readFile(resource);
+		String jsPath = "/it/caldesi/webbot/js/instructions/" + getJSFileName();
+		String script = FileUtils.readResource(jsPath);
 
 		if (paramValues != null)
 			script = JSUtils.loadParametrizedJS(script, paramValues);
