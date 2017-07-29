@@ -2,6 +2,7 @@ package it.caldesi.webbot.script;
 
 import java.util.Iterator;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import it.caldesi.webbot.controller.RecordController;
 import it.caldesi.webbot.model.instruction.Instruction;
@@ -72,7 +73,7 @@ public class ScriptExecutor implements Runnable {
 					if (newState == State.SUCCEEDED) {
 						recordController.onPageLoadSuccess();
 					}
-					
+
 					if (mutexAcquired) {
 						if (execSemaphore.availablePermits() == 0) {
 							execSemaphore.release();
@@ -117,12 +118,20 @@ public class ScriptExecutor implements Runnable {
 
 		Runnable onFinishRunnable = () -> {
 			waitFor(globalDelay);
+			boolean acquired = false;
+			try {
+				acquired = execSemaphore.tryAcquire(10, TimeUnit.SECONDS);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
 			recordController.onFinishExecution();
 			System.out.println("Enabling controls");
 			recordController.executeButton.setDisable(false);
 			recordController.goButton.setDisable(false);
 			recordController.addressTextField.setDisable(false);
+			if (execSemaphore.availablePermits() == 0 && acquired)
+				execSemaphore.release();
 		};
 		Platform.runLater(onFinishRunnable);
 	}

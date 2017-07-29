@@ -206,7 +206,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("New Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController> getController();
+			PopupNewActionController controller = loader.<PopupNewActionController>getController();
 			controller.initEventData(ev);
 
 			controller.setInstructionCallback(instruction -> {
@@ -239,7 +239,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("Edit Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController> getController();
+			PopupNewActionController controller = loader.<PopupNewActionController>getController();
 			controller.initActionData(instruction);
 
 			stage.show();
@@ -451,8 +451,8 @@ public class RecordController implements Initializable {
 	}
 
 	private boolean executionFinished = true;
-	
-	public void onPageLoadSuccess(){
+
+	public void onPageLoadSuccess() {
 		try {
 			URL resource = getClass().getResource("/it/caldesi/webbot/js/functions.js");
 			String script = FileUtils.readFile(resource);
@@ -465,11 +465,15 @@ public class RecordController implements Initializable {
 	public void onFinishExecution() {
 		executionFinished = true;
 
-		Document doc = webEngine.getDocument();
-		Element el = doc.getDocumentElement();
+		try {
+			Document doc = webEngine.getDocument();
+			Element el = doc.getDocumentElement();
 
-		((EventTarget) el).removeEventListener("click", clickElementListener, false);
-		((EventTarget) el).addEventListener("click", clickElementListener, false);
+			((EventTarget) el).removeEventListener("click", clickElementListener, false);
+			((EventTarget) el).addEventListener("click", clickElementListener, false);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	protected boolean isFinishedExecution() {
