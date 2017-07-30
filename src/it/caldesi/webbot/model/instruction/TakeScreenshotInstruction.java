@@ -4,9 +4,11 @@ import java.io.File;
 
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import it.caldesi.webbot.utils.UIUtils;
 import javafx.scene.web.WebView;
 
+@NoTargetInstruction
 public class TakeScreenshotInstruction extends Instruction<Void> {
 
 	public static final String NAME = "takeScreenshot";

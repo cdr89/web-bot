@@ -148,7 +148,7 @@ public class PopupNewActionController implements Initializable {
 			instruction.setObjectXPath(xpathField.getText());
 		instruction.setLabel(labelField.getText());
 		if (!Context.hasNoArgument(actionName))
-			instruction.setArg(argField.getText());
+		instruction.setArg(argField.getText());
 		try {
 			instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {

@@ -4,8 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import javafx.scene.web.WebView;
 
+@NoArgumentInstruction
 public class ClickInstruction extends JSInstruction<Void> {
 
 	public static final String NAME = "click";

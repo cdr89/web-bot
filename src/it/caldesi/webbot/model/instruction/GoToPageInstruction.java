@@ -2,8 +2,10 @@ package it.caldesi.webbot.model.instruction;
 
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import javafx.scene.web.WebView;
 
+@NoTargetInstruction
 public class GoToPageInstruction extends Instruction<Void> {
 
 	public static final String NAME = "goToPage";
