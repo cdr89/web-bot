@@ -11,6 +11,7 @@ import java.util.Set;
 
 import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
+import it.caldesi.webbot.model.annotations.AssignableInstruction;
 import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
@@ -30,6 +31,7 @@ public class Context {
 	// fields
 	private static Set<Class<?>> hasNoArgument;
 	private static Set<Class<?>> hasNoTarget;
+	private static Set<Class<?>> assignable;
 	private static Map<String, Type> argumentTypes;
 	private static Set<String> onlyPositiveIntegerArgument;
 
@@ -42,6 +44,7 @@ public class Context {
 		instructionByType = new HashMap<>();
 		hasNoArgument = new HashSet<>();
 		hasNoTarget = new HashSet<>();
+		assignable = new HashSet<>();
 		argumentTypes = new HashMap<>();
 		onlyPositiveIntegerArgument = new HashSet<>();
 
@@ -65,7 +68,8 @@ public class Context {
 					}
 					if (c.isAnnotationPresent(NoTargetInstruction.class))
 						hasNoTarget.add(c);
-					
+					if (c.isAnnotationPresent(AssignableInstruction.class))
+						assignable.add(c);
 				} catch (Exception e) {
 					System.out.println("Cannot find field " + FIELD_INSTRUCTION_NAME + " on type: " + c.getName());
 				}
@@ -83,6 +87,10 @@ public class Context {
 		return hasNoTarget.contains(instrClass);
 	}
 
+	public static boolean isAssignable(Class<?> instrClass) {
+		return assignable.contains(instrClass);
+	}
+
 	public static boolean hasNoArgument(String actionName) {
 		Class<?> instrClass = getInstructionByType(actionName);
 		return hasNoArgument.contains(instrClass);
@@ -91,6 +99,11 @@ public class Context {
 	public static boolean hasNoTarget(String actionName) {
 		Class<?> instrClass = getInstructionByType(actionName);
 		return hasNoTarget.contains(instrClass);
+	}
+
+	public static boolean isAssignable(String actionName) {
+		Class<?> instrClass = getInstructionByType(actionName);
+		return assignable.contains(instrClass);
 	}
 
 	public static ObservableList<String> getInstructionsObservableList() {

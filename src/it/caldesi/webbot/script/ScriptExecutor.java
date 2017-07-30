@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+import it.caldesi.webbot.context.Context;
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.controller.RecordController;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
@@ -31,8 +33,11 @@ public class ScriptExecutor implements Runnable {
 
 	private RecordController recordController;
 
+	private ScriptExecutionContext scriptExecutionContext;
+
 	public ScriptExecutor(RecordController recordController, long globalDelay) {
 		this.recordController = recordController;
+		scriptExecutionContext = new ScriptExecutionContext();
 
 		// Initialize iterator
 		ObservableList<TreeItem<Instruction<?>>> instructions = recordController.scriptTreeTable.getRoot()
@@ -104,7 +109,13 @@ public class ScriptExecutor implements Runnable {
 		Instruction<?> instruction = treeItem.getValue();
 
 		System.out.println("Executing: " + instruction.actionName);
-		instruction.execute(recordController.webView);
+		
+		Object result = instruction.execute(scriptExecutionContext, recordController.webView);
+		String variable = instruction.getVariable();
+		if (Context.isAssignable(instruction.actionName) && variable != null && !variable.trim().isEmpty()) {
+			scriptExecutionContext.variableValues.put(variable, result);
+		}
+
 		success(treeItem);
 		System.out.println("Executed: " + instruction.toString());
 	}

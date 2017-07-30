@@ -2,6 +2,7 @@ package it.caldesi.webbot.model.instruction;
 
 import java.io.File;
 
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
@@ -18,7 +19,7 @@ public class TakeScreenshotInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public Void execute(WebView webView) throws GenericException {
+	public Void execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
 		if (arg == null || arg.trim().isEmpty())
 			throw new ArgumentRequiredException("filePath");
 		try {

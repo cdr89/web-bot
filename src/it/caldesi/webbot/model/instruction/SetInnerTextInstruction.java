@@ -3,6 +3,7 @@ package it.caldesi.webbot.model.instruction;
 import java.util.HashMap;
 import java.util.Map;
 
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebView;
 
@@ -15,7 +16,7 @@ public class SetInnerTextInstruction extends JSInstruction<Void> {
 	}
 
 	@Override
-	public Void execute(WebView webView) throws GenericException {
+	public Void execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
 		if (arg == null)
 			arg = "";
 

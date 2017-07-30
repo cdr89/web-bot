@@ -37,6 +37,8 @@ public class PopupNewActionController implements Initializable {
 	@FXML
 	TextField labelField;
 	@FXML
+	TextField variableField;
+	@FXML
 	TextField argField;
 
 	@FXML
@@ -125,6 +127,8 @@ public class PopupNewActionController implements Initializable {
 			argField.setDisable(true);
 		if (Context.hasNoTarget(instructionByType))
 			xpathField.setDisable(true);
+		if (!Context.isAssignable(instructionByType))
+			variableField.setDisable(true);
 	}
 
 	private void enableAllFields() {
@@ -132,6 +136,7 @@ public class PopupNewActionController implements Initializable {
 		delayField.setDisable(false);
 		labelField.setDisable(false);
 		argField.setDisable(false);
+		variableField.setDisable(false);
 	}
 
 	private void disableAllFields() {
@@ -139,6 +144,7 @@ public class PopupNewActionController implements Initializable {
 		delayField.setDisable(true);
 		labelField.setDisable(true);
 		argField.setDisable(true);
+		variableField.setDisable(true);
 	}
 
 	public void initEventData(Event ev) {
@@ -157,6 +163,7 @@ public class PopupNewActionController implements Initializable {
 		xpathField.setText(instruction.getObjectXPath());
 		labelField.setText(instruction.getLabel());
 		argField.setText(instruction.getArg());
+		variableField.setText(instruction.getVariable());
 		delayField.setText(Long.toString(instruction.getDelay()));
 	}
 
@@ -172,6 +179,8 @@ public class PopupNewActionController implements Initializable {
 		instruction.setLabel(labelField.getText());
 		if (!Context.hasNoArgument(actionName))
 			instruction.setArg(argField.getText());
+		if (Context.isAssignable(actionName))
+			instruction.setVariable(variableField.getText());
 		try {
 			instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {

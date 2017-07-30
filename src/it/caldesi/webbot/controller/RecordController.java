@@ -74,6 +74,8 @@ public class RecordController implements Initializable {
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColLabel;
 	@FXML
+	private TreeTableColumn<Instruction<?>, String> treeColVariable;
+	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColAction;
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColObj;
@@ -119,6 +121,7 @@ public class RecordController implements Initializable {
 
 		// Column mapping
 		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("label"));
+		treeColVariable.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("variable"));
 		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));
 		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("objectXPath"));
 		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("arg"));

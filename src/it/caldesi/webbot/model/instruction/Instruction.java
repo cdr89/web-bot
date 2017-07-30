@@ -1,6 +1,7 @@
 package it.caldesi.webbot.model.instruction;
 
 import it.caldesi.webbot.context.Context;
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import javafx.scene.web.WebView;
 
@@ -9,6 +10,7 @@ public abstract class Instruction<T> {
 	public String actionName;
 
 	protected String label;
+	protected String variable;
 	protected String objectXPath;
 	protected String arg;
 	protected long delay;
@@ -37,6 +39,14 @@ public abstract class Instruction<T> {
 		this.label = label;
 	}
 
+	public String getVariable() {
+		return variable;
+	}
+
+	public void setVariable(String variable) {
+		this.variable = variable;
+	}
+
 	public String getObjectXPath() {
 		return objectXPath;
 	}
@@ -61,7 +71,7 @@ public abstract class Instruction<T> {
 		this.delay = delay;
 	}
 
-	public abstract T execute(WebView webView) throws GenericException;
+	public abstract T execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException;
 
 	public static class Builder {
 

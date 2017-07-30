@@ -1,5 +1,6 @@
 package it.caldesi.webbot.model.instruction;
 
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
@@ -17,7 +18,7 @@ public class WaitInstruction extends Instruction<Void> {
 	}
 
 	@Override
-	public Void execute(WebView webView) throws GenericException {
+	public Void execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
 		try {
 			Thread.sleep(Long.parseLong(arg));
 		} catch (Exception e) {
