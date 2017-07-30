@@ -10,7 +10,7 @@ import java.lang.annotation.Target;
 public @interface ArgumentType {
 
 	public enum Type {
-		STRING, INTEGER
+		STRING, INTEGER, BOOLEAN
 	}
 
 	Type type() default Type.STRING;

@@ -6,9 +6,9 @@ import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import javafx.scene.web.WebView;
 
 @InvisibleInstruction
-public class NullInstruction extends Instruction<Void> {
+public class RootBlock extends Block {
 
-	public NullInstruction() {
+	public RootBlock() {
 		super();
 	}
 

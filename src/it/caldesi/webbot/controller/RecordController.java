@@ -11,9 +11,10 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import it.caldesi.webbot.model.instruction.Block;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
-import it.caldesi.webbot.model.instruction.NullInstruction;
+import it.caldesi.webbot.model.instruction.RootBlock;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
@@ -128,7 +129,7 @@ public class RecordController implements Initializable {
 		treeColDelay.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("delay"));
 
 		// root node
-		Instruction<?> root = new NullInstruction();
+		Instruction<?> root = new RootBlock();
 		root.setLabel("root");
 		TreeItem<Instruction<?>> rootItem = new TreeItem<>(root);
 		scriptTreeTable.setRoot(rootItem);
@@ -260,7 +261,7 @@ public class RecordController implements Initializable {
 			root.getChildren().add(item);
 		}
 
-		item.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
+		clearInstructionIndicator(item);
 	}
 
 	public void goToAddress() {
@@ -285,10 +286,8 @@ public class RecordController implements Initializable {
 		}
 
 		executionFinished = false;
-
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
-		rows.parallelStream()
-				.forEach(row -> row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT))));
+		clearExecutionIndicators(rows);
 
 		executeButton.setDisable(true);
 		goButton.setDisable(true);
@@ -296,6 +295,20 @@ public class RecordController implements Initializable {
 
 		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
 		new Thread(scriptExecutor).start();
+	}
+
+	private void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {
+		if (rows == null)
+			return;
+
+		rows.parallelStream().forEach(row -> {
+			clearInstructionIndicator(row);
+			clearExecutionIndicators(row.getChildren());
+		});
+	}
+
+	private void clearInstructionIndicator(TreeItem<Instruction<?>> row) {
+		row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
 	}
 
 	private void mouseListener(MouseEvent mouseEvent) {
@@ -342,51 +355,48 @@ public class RecordController implements Initializable {
 
 		row.setOnDragDropped(event -> {
 			Dragboard db = event.getDragboard();
-			// if (acceptable(db, row)) {
-			// int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-			// TreeItem<Instruction<?>> item =
-			// scriptTreeTable.getTreeItem(index);
-			// item.getParent().getChildren().remove(item);
-			// getTarget(row).getChildren().add(item);
-			// event.setDropCompleted(true);
-			// scriptTreeTable.getSelectionModel().select(item);
-			// event.consume();
-			// }
+
 			int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
 			TreeItem<Instruction<?>> item = scriptTreeTable.getTreeItem(index);
 			item.getParent().getChildren().remove(item);
 
-			TreeItem<Instruction<?>> targetRow = getTarget(row);
-			// targetRow.getChildren().add(item);
-			int indexOfTarget = scriptTreeTable.getRoot().getChildren().indexOf(targetRow);
-			System.out.println("indexOfTarget: " + indexOfTarget);
+			if (acceptable(db, row)) { // drag into block
+				getTarget(row).getChildren().add(item);
+				event.setDropCompleted(true);
+				scriptTreeTable.getSelectionModel().select(item);
+				event.consume();
+			} else { // drag outside block
+				TreeItem<Instruction<?>> targetRow = getTarget(row);
+				// targetRow.getChildren().add(item);
+				int indexOfTarget = scriptTreeTable.getRoot().getChildren().indexOf(targetRow);
+				System.out.println("indexOfTarget: " + indexOfTarget);
 
-			if (indexOfTarget >= 0)
-				scriptTreeTable.getRoot().getChildren().add(indexOfTarget, item);
-			else
-				scriptTreeTable.getRoot().getChildren().add(item);
+				if (indexOfTarget >= 0)
+					scriptTreeTable.getRoot().getChildren().add(indexOfTarget, item);
+				else
+					scriptTreeTable.getRoot().getChildren().add(item);
 
-			event.setDropCompleted(true);
-			scriptTreeTable.getSelectionModel().select(item);
-			event.consume();
+				event.setDropCompleted(true);
+				scriptTreeTable.getSelectionModel().select(item);
+				event.consume();
+			}
 		});
 
 		return row;
 	}
 
-	// private boolean acceptable(Dragboard db, TreeTableRow<Instruction<?>>
-	// row) {
-	// boolean result = false;
-	// if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-	// int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-	// if (row.getIndex() != index) {
-	// TreeItem<Instruction<?>> target = getTarget(row);
-	// TreeItem<Instruction<?>> item = scriptTreeTable.getTreeItem(index);
-	// result = !isParent(item, target);
-	// }
-	// }
-	// return result;
-	// }
+	private boolean acceptable(Dragboard db, TreeTableRow<Instruction<?>> row) {
+		boolean result = false;
+		if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+			int index = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+			if (row.getIndex() != index) {
+				TreeItem<Instruction<?>> target = getTarget(row);
+				TreeItem<Instruction<?>> item = scriptTreeTable.getTreeItem(index);
+				result = !isParent(item, target) && (target.getValue() instanceof Block);
+			}
+		}
+		return result;
+	}
 
 	private TreeItem<Instruction<?>> getTarget(TreeTableRow<Instruction<?>> row) {
 		TreeItem<Instruction<?>> target = scriptTreeTable.getRoot();
@@ -397,15 +407,14 @@ public class RecordController implements Initializable {
 	}
 
 	// prevent loops in the tree
-	// private boolean isParent(TreeItem<Instruction<?>> parent,
-	// TreeItem<Instruction<?>> child) {
-	// boolean result = false;
-	// while (!result && child != null) {
-	// result = child.getParent() == parent;
-	// child = child.getParent();
-	// }
-	// return result;
-	// }
+	private boolean isParent(TreeItem<Instruction<?>> parent, TreeItem<Instruction<?>> child) {
+		boolean result = false;
+		while (!result && child != null) {
+			result = child.getParent() == parent;
+			child = child.getParent();
+		}
+		return result;
+	}
 
 	private void setupScrolling() {
 		scrolltimeline.setCycleCount(Timeline.INDEFINITE);

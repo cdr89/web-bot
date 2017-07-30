@@ -1,12 +1,15 @@
 package it.caldesi.webbot.script;
 
-import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.controller.RecordController;
+import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.model.instruction.IfBlock;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
 import javafx.application.Platform;
@@ -22,7 +25,7 @@ public class ScriptExecutor implements Runnable {
 
 	private static int SET_GRAPHIC_DELAY = 100;
 
-	private Iterator<TreeItem<Instruction<?>>> iteratorOnIstructions;
+	private Stack<TreeItem<Instruction<?>>> executionStack = new Stack<>();
 	private ChangeListener<State> playListener;
 
 	private Semaphore mutex;
@@ -42,7 +45,7 @@ public class ScriptExecutor implements Runnable {
 		// Initialize iterator
 		ObservableList<TreeItem<Instruction<?>>> instructions = recordController.scriptTreeTable.getRoot()
 				.getChildren();
-		iteratorOnIstructions = instructions.iterator();
+		addInstructionsToExecute(instructions);
 
 		this.globalDelay = globalDelay;
 		this.mutex = new Semaphore(1);
@@ -97,19 +100,28 @@ public class ScriptExecutor implements Runnable {
 		recordController.webEngine.getLoadWorker().stateProperty().addListener(playListener);
 	}
 
+	private void addInstructionsToExecute(List<TreeItem<Instruction<?>>> instructions) {
+		if (instructions == null)
+			return;
+
+		for (int i = instructions.size() - 1; i >= 0; i--) {
+			executionStack.push(instructions.get(i));
+		}
+	}
+
 	private TreeItem<Instruction<?>> nextInstruction() {
-		return iteratorOnIstructions.next();
+		return executionStack.pop();
 	}
 
 	private boolean hasNextInstruction() {
-		return iteratorOnIstructions.hasNext();
+		return !executionStack.isEmpty();
 	}
 
 	private void execute(TreeItem<Instruction<?>> treeItem) throws Exception {
 		Instruction<?> instruction = treeItem.getValue();
 
 		System.out.println("Executing: " + instruction.actionName);
-		
+
 		Object result = instruction.execute(scriptExecutionContext, recordController.webView);
 		String variable = instruction.getVariable();
 		if (Context.isAssignable(instruction.actionName) && variable != null && !variable.trim().isEmpty()) {
@@ -169,16 +181,36 @@ public class ScriptExecutor implements Runnable {
 		while (hasNextInstruction() && !failed) {
 			waitFor(globalDelay);
 
+			currentInstruction = nextInstruction();
+			Instruction<?> instruction = currentInstruction.getValue();
+
+			if (instruction instanceof IfBlock) {
+				executing(currentInstruction);
+				currentInstruction.setExpanded(true);
+				IfBlock ifBlock = (IfBlock) instruction;
+				try {
+					if (ifBlock.evaluateCondition(scriptExecutionContext))
+						addInstructionsToExecute(currentInstruction.getChildren());
+					success(currentInstruction);
+				} catch (GenericException e) {
+					failed = true;
+					failed(currentInstruction);
+					onFinish();
+					e.printStackTrace();
+					break;
+				}
+				continue;
+			}
+
 			if (failed)
 				break;
 
 			try {
-				currentInstruction = nextInstruction();
 				executing(currentInstruction);
 
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
-				waitFor(currentInstruction.getValue().getDelay());
+				waitFor(instruction.getDelay());
 
 				if (lastState == State.CANCELLED || lastState == State.FAILED) {
 					failed = true;
