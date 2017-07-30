@@ -1,5 +1,6 @@
 package it.caldesi.webbot.context;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import it.caldesi.webbot.model.annotations.ArgumentType;
+import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
@@ -27,6 +30,8 @@ public class Context {
 	// fields
 	private static Set<Class<?>> hasNoArgument;
 	private static Set<Class<?>> hasNoTarget;
+	private static Map<String, Type> argumentTypes;
+	private static Set<String> onlyPositiveIntegerArgument;
 
 	private static String PACKAGE_INSTRUCTION = "it.caldesi.webbot.model.instruction";
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
@@ -37,6 +42,8 @@ public class Context {
 		instructionByType = new HashMap<>();
 		hasNoArgument = new HashSet<>();
 		hasNoTarget = new HashSet<>();
+		argumentTypes = new HashMap<>();
+		onlyPositiveIntegerArgument = new HashSet<>();
 
 		for (Class<?> c : instructionClassList) {
 			if (!Modifier.isAbstract(c.getModifiers()) && !c.isAnnotationPresent(InvisibleInstruction.class)) {
@@ -46,8 +53,19 @@ public class Context {
 					instructionByType.put(instructionName, c);
 					if (c.isAnnotationPresent(NoArgumentInstruction.class))
 						hasNoArgument.add(c);
+					else if (c.isAnnotationPresent(ArgumentType.class)) {
+						Annotation argumentTypeAnnotation = c.getAnnotation(ArgumentType.class);
+						ArgumentType argumentType = (ArgumentType) argumentTypeAnnotation;
+						argumentTypes.put(instructionName, argumentType.type());
+						if (argumentType.type() == Type.INTEGER) {
+							if (argumentType.onlyPositive()) {
+								onlyPositiveIntegerArgument.add(instructionName);
+							}
+						}
+					}
 					if (c.isAnnotationPresent(NoTargetInstruction.class))
 						hasNoTarget.add(c);
+					
 				} catch (Exception e) {
 					System.out.println("Cannot find field " + FIELD_INSTRUCTION_NAME + " on type: " + c.getName());
 				}
@@ -85,6 +103,14 @@ public class Context {
 
 	public static Class<?> getInstructionByType(String type) {
 		return instructionByType.get(type);
+	}
+
+	public static Type getArgumentType(String instructionType) {
+		return argumentTypes.get(instructionType);
+	}
+
+	public static boolean onlyPositiveInteger(String instructionType) {
+		return onlyPositiveIntegerArgument.contains(instructionType);
 	}
 
 	public static Instruction<?> getInstructionInstanceByType(String type) {

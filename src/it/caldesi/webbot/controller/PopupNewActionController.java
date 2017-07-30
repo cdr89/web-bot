@@ -9,6 +9,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.events.Event;
 
 import it.caldesi.webbot.context.Context;
+import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.instruction.ClickInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
@@ -53,15 +54,15 @@ public class PopupNewActionController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		actionCombobox.setItems(Context.getInstructionsObservableList());
-		actionCombobox.getSelectionModel().select(ClickInstruction.NAME);
-
 		actionCombobox.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				Class<?> instructionByType = Context.getInstructionByType(newValue);
 				setFieldVisibility(instructionByType);
+				setFieldConstraints(instructionByType, newValue);
 			}
 		});
+		actionCombobox.getSelectionModel().select(ClickInstruction.NAME);
 
 		okButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
@@ -89,6 +90,28 @@ public class PopupNewActionController implements Initializable {
 
 		UnaryOperator<Change> integerFilter = UIUtils.getIntegerFieldFormatter(true);
 		delayField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 0, integerFilter));
+	}
+
+	protected void setFieldConstraints(Class<?> instructionByType, String instructionType) {
+		Type argumentType = Context.getArgumentType(instructionType);
+
+		if (argumentType != null) {
+			switch (argumentType) {
+			case STRING:
+				argField.setTextFormatter(null);
+				break;
+
+			case INTEGER:
+				boolean onlyPositiveInteger = Context.onlyPositiveInteger(instructionType);
+				UnaryOperator<Change> integerFilter = UIUtils.getIntegerFieldFormatter(onlyPositiveInteger);
+				argField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 0, integerFilter));
+				break;
+
+			default:
+				argField.setTextFormatter(null);
+				break;
+			}
+		}
 	}
 
 	protected void setFieldVisibility(Class<?> instructionByType) {
@@ -148,7 +171,7 @@ public class PopupNewActionController implements Initializable {
 			instruction.setObjectXPath(xpathField.getText());
 		instruction.setLabel(labelField.getText());
 		if (!Context.hasNoArgument(actionName))
-		instruction.setArg(argField.getText());
+			instruction.setArg(argField.getText());
 		try {
 			instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {
