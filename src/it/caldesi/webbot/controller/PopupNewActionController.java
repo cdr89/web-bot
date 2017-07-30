@@ -13,6 +13,8 @@ import it.caldesi.webbot.model.instruction.ClickInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.XMLUtils;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -53,6 +55,14 @@ public class PopupNewActionController implements Initializable {
 		actionCombobox.setItems(Context.getInstructionsObservableList());
 		actionCombobox.getSelectionModel().select(ClickInstruction.NAME);
 
+		actionCombobox.valueProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				Class<?> instructionByType = Context.getInstructionByType(newValue);
+				setFieldVisibility(instructionByType);
+			}
+		});
+
 		okButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
@@ -81,6 +91,33 @@ public class PopupNewActionController implements Initializable {
 		delayField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 0, integerFilter));
 	}
 
+	protected void setFieldVisibility(Class<?> instructionByType) {
+		if (instructionByType == null) {
+			disableAllFields();
+			return;
+		}
+		enableAllFields();
+
+		if (Context.hasNoArgument(instructionByType))
+			argField.setDisable(true);
+		if (Context.hasNoTarget(instructionByType))
+			xpathField.setDisable(true);
+	}
+
+	private void enableAllFields() {
+		xpathField.setDisable(false);
+		delayField.setDisable(false);
+		labelField.setDisable(false);
+		argField.setDisable(false);
+	}
+
+	private void disableAllFields() {
+		xpathField.setDisable(true);
+		delayField.setDisable(true);
+		labelField.setDisable(true);
+		argField.setDisable(true);
+	}
+
 	public void initEventData(Event ev) {
 		if (ev == null)
 			return;
@@ -107,9 +144,11 @@ public class PopupNewActionController implements Initializable {
 	private Instruction<?> buildInstruction() {
 		String actionName = actionCombobox.getSelectionModel().getSelectedItem();
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
-		instruction.setObjectXPath(xpathField.getText());
+		if (!Context.hasNoTarget(actionName))
+			instruction.setObjectXPath(xpathField.getText());
 		instruction.setLabel(labelField.getText());
-		instruction.setArg(argField.getText());
+		if (!Context.hasNoArgument(actionName))
+			instruction.setArg(argField.getText());
 		try {
 			instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {

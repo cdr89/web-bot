@@ -18,7 +18,7 @@ public class Utils {
 		return url;
 	}
 
-	public static ArrayList<Class<?>> getClassesForPackage(String pkgname) {
+	public static ArrayList<Class<?>> getClassesForPackage(String pkgname, boolean subClasses) {
 		ArrayList<Class<?>> classes = new ArrayList<Class<?>>();
 		// Get a File object for the package
 		File directory = null;
@@ -53,6 +53,10 @@ public class Utils {
 				if (files[i].endsWith(".class")) {
 					// removes the .class extension
 					String className = pkgname + '.' + files[i].substring(0, files[i].length() - 6);
+					if(!subClasses){
+						if(className.contains("$"))
+							continue;
+					}
 					System.out.println("ClassDiscovery: className = " + className);
 					try {
 						classes.add(Class.forName(className));
@@ -73,6 +77,10 @@ public class Utils {
 					if (entryName.startsWith(relPath) && entryName.length() > (relPath.length() + "/".length())) {
 						System.out.println("ClassDiscovery: JarEntry: " + entryName);
 						String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
+						if(!subClasses){
+							if(className.contains("$"))
+								continue;
+						}
 						System.out.println("ClassDiscovery: className = " + className);
 						try {
 							classes.add(Class.forName(className));
