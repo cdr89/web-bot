@@ -1,4 +1,4 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.block;
 
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.ArgumentRequiredException;
@@ -8,14 +8,16 @@ import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import javafx.scene.web.WebView;
 
-@NoTargetInstruction
 @ArgumentType(type = Type.BOOLEAN)
-public class IfBlock extends Block {
+@NoTargetInstruction
+public abstract class EvaluableBlock extends Block {
 
-	public static final String NAME = "if";
+	public EvaluableBlock() {
+		super();
+	}
 
-	public IfBlock() {
-		super(NAME);
+	public EvaluableBlock(String name) {
+		super(name);
 	}
 
 	public boolean evaluateCondition(ScriptExecutionContext scriptExecutionContext) throws GenericException {

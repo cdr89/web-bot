@@ -109,6 +109,9 @@ public class PopupNewActionController implements Initializable {
 				argField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 0, integerFilter));
 				break;
 
+			case BOOLEAN:
+				// TODO break;
+
 			default:
 				argField.setTextFormatter(null);
 				break;

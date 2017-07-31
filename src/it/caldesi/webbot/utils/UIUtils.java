@@ -6,11 +6,16 @@ import java.util.function.UnaryOperator;
 
 import javax.imageio.ImageIO;
 
+import it.caldesi.webbot.model.instruction.Instruction;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Paint;
+import javafx.scene.shape.Circle;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
@@ -51,6 +56,20 @@ public class UIUtils {
 		public static final String GREEN = "#68C953";
 		public static final String RED = "#CF3E3E";
 		public static final String YELLOW = "#EDAD18";
+	}
+	
+	public static void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {
+		if (rows == null)
+			return;
+
+		rows.parallelStream().forEach(row -> {
+			clearInstructionIndicator(row);
+			clearExecutionIndicators(row.getChildren());
+		});
+	}
+
+	public static void clearInstructionIndicator(TreeItem<Instruction<?>> row) {
+		row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
 	}
 
 }

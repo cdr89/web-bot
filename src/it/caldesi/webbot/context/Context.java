@@ -35,11 +35,15 @@ public class Context {
 	private static Map<String, Type> argumentTypes;
 	private static Set<String> onlyPositiveIntegerArgument;
 
-	private static String PACKAGE_INSTRUCTION = "it.caldesi.webbot.model.instruction";
+	private static String[] PACKAGES_INSTRUCTION = { "it.caldesi.webbot.model.instruction",
+			"it.caldesi.webbot.model.instruction.block" };
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
 
 	public static void loadContext() throws Exception {
-		instructionClassList = Utils.getClassesForPackage(PACKAGE_INSTRUCTION, false);
+		instructionClassList = new LinkedList<>();
+		for (String pack : PACKAGES_INSTRUCTION) {
+			instructionClassList.addAll(Utils.getClassesForPackage(pack, false));
+		}
 		instructionTypes = new LinkedList<>();
 		instructionByType = new HashMap<>();
 		hasNoArgument = new HashSet<>();

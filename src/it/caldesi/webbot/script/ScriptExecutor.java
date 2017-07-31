@@ -9,8 +9,10 @@ import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.controller.RecordController;
 import it.caldesi.webbot.exception.GenericException;
-import it.caldesi.webbot.model.instruction.IfBlock;
 import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.model.instruction.block.Block;
+import it.caldesi.webbot.model.instruction.block.IfBlock;
+import it.caldesi.webbot.model.instruction.block.WhileBlock;
 import it.caldesi.webbot.utils.UIUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -109,6 +111,13 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
+	private void addInstructionToExecute(TreeItem<Instruction<?>> currentInstruction2) {
+		if (currentInstruction2 == null)
+			return;
+
+		executionStack.push(currentInstruction2);
+	}
+
 	private TreeItem<Instruction<?>> nextInstruction() {
 		return executionStack.pop();
 	}
@@ -184,22 +193,41 @@ public class ScriptExecutor implements Runnable {
 			currentInstruction = nextInstruction();
 			Instruction<?> instruction = currentInstruction.getValue();
 
-			if (instruction instanceof IfBlock) {
+			if (instruction instanceof Block) {
 				executing(currentInstruction);
 				currentInstruction.setExpanded(true);
-				IfBlock ifBlock = (IfBlock) instruction;
-				try {
-					if (ifBlock.evaluateCondition(scriptExecutionContext))
-						addInstructionsToExecute(currentInstruction.getChildren());
-					success(currentInstruction);
-				} catch (GenericException e) {
-					failed = true;
-					failed(currentInstruction);
-					onFinish();
-					e.printStackTrace();
-					break;
+
+				if (instruction instanceof IfBlock) {
+					IfBlock ifBlock = (IfBlock) instruction;
+					try {
+						if (ifBlock.evaluateCondition(scriptExecutionContext))
+							addInstructionsToExecute(currentInstruction.getChildren());
+						success(currentInstruction);
+					} catch (GenericException e) {
+						failed = true;
+						failed(currentInstruction);
+						onFinish();
+						e.printStackTrace();
+						break;
+					}
+					continue;
+				} else if (instruction instanceof WhileBlock) {
+					WhileBlock whileBlock = (WhileBlock) instruction;
+					try {
+						if (whileBlock.evaluateCondition(scriptExecutionContext)) {
+							addInstructionToExecute(currentInstruction);
+							addInstructionsToExecute(currentInstruction.getChildren());
+						}
+						success(currentInstruction);
+					} catch (GenericException e) {
+						failed = true;
+						failed(currentInstruction);
+						onFinish();
+						e.printStackTrace();
+						break;
+					}
+					continue;
 				}
-				continue;
 			}
 
 			if (failed)
@@ -298,6 +326,9 @@ public class ScriptExecutor implements Runnable {
 			graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
 				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
+				if (currentInstruction2.getValue() instanceof Block) {
+					UIUtils.clearExecutionIndicators(currentInstruction2.getChildren());
+				}
 				waitFor(SET_GRAPHIC_DELAY);
 				graphicChangeSemaphore.release();
 			};

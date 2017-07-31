@@ -11,10 +11,10 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
-import it.caldesi.webbot.model.instruction.Block;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
-import it.caldesi.webbot.model.instruction.RootBlock;
+import it.caldesi.webbot.model.instruction.block.Block;
+import it.caldesi.webbot.model.instruction.block.RootBlock;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
@@ -53,8 +53,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
@@ -211,7 +209,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("New Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController>getController();
+			PopupNewActionController controller = loader.<PopupNewActionController> getController();
 			controller.initEventData(ev);
 
 			controller.setInstructionCallback(instruction -> {
@@ -242,7 +240,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("Edit Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController>getController();
+			PopupNewActionController controller = loader.<PopupNewActionController> getController();
 			controller.initActionData(instruction);
 
 			stage.show();
@@ -261,7 +259,7 @@ public class RecordController implements Initializable {
 			root.getChildren().add(item);
 		}
 
-		clearInstructionIndicator(item);
+		UIUtils.clearInstructionIndicator(item);
 	}
 
 	public void goToAddress() {
@@ -287,7 +285,7 @@ public class RecordController implements Initializable {
 
 		executionFinished = false;
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
-		clearExecutionIndicators(rows);
+		UIUtils.clearExecutionIndicators(rows);
 
 		executeButton.setDisable(true);
 		goButton.setDisable(true);
@@ -295,20 +293,6 @@ public class RecordController implements Initializable {
 
 		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
 		new Thread(scriptExecutor).start();
-	}
-
-	private void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {
-		if (rows == null)
-			return;
-
-		rows.parallelStream().forEach(row -> {
-			clearInstructionIndicator(row);
-			clearExecutionIndicators(row.getChildren());
-		});
-	}
-
-	private void clearInstructionIndicator(TreeItem<Instruction<?>> row) {
-		row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
 	}
 
 	private void mouseListener(MouseEvent mouseEvent) {

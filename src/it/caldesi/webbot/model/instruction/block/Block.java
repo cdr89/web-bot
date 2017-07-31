@@ -1,4 +1,6 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.block;
+
+import it.caldesi.webbot.model.instruction.Instruction;
 
 public abstract class Block extends Instruction<Void> {
 
