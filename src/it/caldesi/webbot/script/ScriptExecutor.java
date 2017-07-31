@@ -11,6 +11,7 @@ import it.caldesi.webbot.controller.MainController;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.exception.StopExecutionException;
 import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.model.instruction.PageInstruction;
 import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.IfBlock;
 import it.caldesi.webbot.model.instruction.block.WhileBlock;
@@ -83,6 +84,12 @@ public class ScriptExecutor implements Runnable {
 				} else { // can go
 					if (newState == State.SUCCEEDED) {
 						recordController.onPageLoadSuccess();
+						if ((currentInstruction.getValue() instanceof PageInstruction))
+							success(currentInstruction);
+					} else if (newState == State.CANCELLED || newState == State.FAILED) {
+						if ((currentInstruction.getValue() instanceof PageInstruction))
+							failed(currentInstruction);
+						forcedStop();
 					}
 
 					if (mutexAcquired) {
@@ -138,7 +145,8 @@ public class ScriptExecutor implements Runnable {
 			scriptExecutionContext.variableValues.put(variable, result);
 		}
 
-		success(treeItem);
+		if (!(instruction instanceof PageInstruction))
+			success(treeItem);
 		System.out.println("Executed: " + instruction.toString());
 	}
 
@@ -203,14 +211,17 @@ public class ScriptExecutor implements Runnable {
 			if (failed)
 				break;
 
-			currentInstruction = nextInstruction();
-			Instruction<?> instruction = currentInstruction.getValue();
-
 			try {
-				executing(currentInstruction);
-
-				System.out.println("[scriptExecutor] Acquire mutex");
+				System.out.println("[scriptExecutor] Acquiring mutex");
 				mutex.acquire();
+				System.out.println("[scriptExecutor] Acquired mutex");
+
+				execSemaphore.acquire();
+				currentInstruction = nextInstruction();
+				Instruction<?> instruction = currentInstruction.getValue();
+				executing(currentInstruction);
+				execSemaphore.release();
+
 				waitFor(instruction.getDelay());
 
 				if (instruction instanceof Block) {
@@ -272,7 +283,9 @@ public class ScriptExecutor implements Runnable {
 						failed(instr);
 						onFinish();
 					} finally {
-						execSemaphore.release();
+						if (!(instr.getValue() instanceof PageInstruction)) {
+							execSemaphore.release();
+						}
 						System.out.println("[instructionRunnable] release execSemaphore, permits: "
 								+ execSemaphore.availablePermits());
 					}
