@@ -66,8 +66,6 @@ public class ScriptExecutor implements Runnable {
 
 				System.out.println("[playListener] -----LOCATION----->" + recordController.webEngine.getLocation());
 				System.out.println("[playListener] State: " + ov.getValue().toString());
-				// update state variables
-				lastState = newState;
 
 				if (newState == State.SCHEDULED || newState == State.READY || newState == State.RUNNING) {
 					if (!mutexAcquired) {
@@ -195,7 +193,6 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private State lastState;
 	private long globalDelay;
 	TreeItem<Instruction<?>> currentInstruction;
 
@@ -222,7 +219,7 @@ public class ScriptExecutor implements Runnable {
 				executing(currentInstruction);
 				execSemaphore.release();
 
-				waitFor(instruction.getDelay());
+				// waitFor(instruction.getDelay());
 
 				if (instruction instanceof Block) {
 					currentInstruction.setExpanded(true);
@@ -260,9 +257,25 @@ public class ScriptExecutor implements Runnable {
 					}
 				}
 
-				if (lastState == State.CANCELLED || lastState == State.FAILED) {
-					failed = true;
-					break;
+				if (currentInstruction.getValue().getDelay() > 0) {
+					Runnable delayRunnable = () -> {
+						final TreeItem<Instruction<?>> instr = currentInstruction;
+						try {
+							if (failed)
+								return;
+
+							waitFor(instr.getValue().getDelay());
+						} catch (Exception e) {
+							e.printStackTrace();
+							failed(instr);
+							onFinish();
+						} finally {
+							execSemaphore.release();
+						}
+					};
+					Thread delayThread = new Thread(delayRunnable);
+					execSemaphore.acquire();
+					delayThread.start();
 				}
 
 				Runnable instructionRunnable = () -> {
