@@ -7,7 +7,7 @@
 <?import javafx.scene.control.Button?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="it.caldesi.webbot.controller.PopupNewActionController">
+	fx:controller="it.caldesi.webbot.controller.PopupActionEditController">
 	<children>
 		<VBox prefHeight="99.0" prefWidth="300.0">
 			<children>

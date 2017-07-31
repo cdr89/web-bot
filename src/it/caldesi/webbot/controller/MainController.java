@@ -60,7 +60,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class RecordController implements Initializable {
+public class MainController implements Initializable {
 
 	public final static int GLOBAL_DELAY = 200;
 
@@ -105,7 +105,7 @@ public class RecordController implements Initializable {
 	private static String highlightJS = FileUtils.readResource("/it/caldesi/webbot/js/highlightElement.js");
 	private static String removeHighlightJS = FileUtils.readResource("/it/caldesi/webbot/js/removeHighlight.js");
 
-	public RecordController() {
+	public MainController() {
 	}
 
 	@Override
@@ -200,7 +200,7 @@ public class RecordController implements Initializable {
 
 	private void newActionPopup(Event ev) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/popup_new_action.fxml"),
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/edit_action_popup.fxml"),
 					resources);
 			Parent root1 = loader.load();
 
@@ -209,7 +209,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("New Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController> getController();
+			PopupActionEditController controller = loader.<PopupActionEditController> getController();
 			controller.initEventData(ev);
 
 			controller.setInstructionCallback(instruction -> {
@@ -231,7 +231,7 @@ public class RecordController implements Initializable {
 
 	private void editActionPopup(TreeItem<Instruction<?>> instruction) {
 		try {
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/popup_new_action.fxml"),
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/edit_action_popup.fxml"),
 					resources);
 			Parent root1 = loader.load();
 
@@ -240,7 +240,7 @@ public class RecordController implements Initializable {
 			stage.setTitle("Edit Action");
 			stage.setScene(new Scene(root1));
 
-			PopupNewActionController controller = loader.<PopupNewActionController> getController();
+			PopupActionEditController controller = loader.<PopupActionEditController> getController();
 			controller.initActionData(instruction);
 
 			stage.show();

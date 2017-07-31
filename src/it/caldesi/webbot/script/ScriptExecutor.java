@@ -7,7 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
-import it.caldesi.webbot.controller.RecordController;
+import it.caldesi.webbot.controller.MainController;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
@@ -36,11 +36,11 @@ public class ScriptExecutor implements Runnable {
 	// executing using Platform.runLater()
 	private Semaphore graphicChangeSemaphore;
 
-	private RecordController recordController;
+	private MainController recordController;
 
 	private ScriptExecutionContext scriptExecutionContext;
 
-	public ScriptExecutor(RecordController recordController, long globalDelay) {
+	public ScriptExecutor(MainController recordController, long globalDelay) {
 		this.recordController = recordController;
 		scriptExecutionContext = new ScriptExecutionContext();
 

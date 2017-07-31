@@ -28,7 +28,7 @@ import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TreeItem;
 import javafx.util.converter.IntegerStringConverter;
 
-public class PopupNewActionController implements Initializable {
+public class PopupActionEditController implements Initializable {
 
 	@FXML
 	TextField xpathField;

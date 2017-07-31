@@ -21,12 +21,12 @@ public class Main extends Application {
 		}
 		try {
 			ResourceBundle recordBundle = ResourceBundle.getBundle("it.caldesi.webbot.properties.RecordScene");
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/scene_record.fxml"),
+			FXMLLoader loader = new FXMLLoader(getClass().getResource("/it/caldesi/webbot/view/main_scene.fxml"),
 					recordBundle);
 			Parent root = loader.load();
 
 			Scene scene = new Scene(root, 1200, 600);
-			primaryStage.setTitle("Record actions");// TODO from properties
+			primaryStage.setTitle("WebBot");// TODO from properties
 			primaryStage.setScene(scene);
 			primaryStage.show();
 		} catch (IOException e) {
