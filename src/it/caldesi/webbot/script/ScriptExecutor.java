@@ -9,6 +9,7 @@ import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.controller.MainController;
 import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.exception.StopExecutionException;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.IfBlock;
@@ -262,6 +263,10 @@ public class ScriptExecutor implements Runnable {
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
 						execute(instr);
+					} catch (StopExecutionException see) {
+						see.printStackTrace();
+						success(instr, true);
+						forcedStop(true);
 					} catch (Exception e) {
 						e.printStackTrace();
 						failed(instr);
@@ -273,13 +278,13 @@ public class ScriptExecutor implements Runnable {
 					}
 				};
 				runningInstruction = new Thread(instructionRunnable);
-				graphicChangeSemaphore.acquire();
+				// graphicChangeSemaphore.acquire();
 				execSemaphore.acquire();
 				if (Context.isUIInstruction(instruction.getClass()))
 					Platform.runLater(runningInstruction);
 				else
 					runningInstruction.start();
-				graphicChangeSemaphore.release();
+				// graphicChangeSemaphore.release();
 			} catch (Exception e) {
 				e.printStackTrace();
 				onFinish();
@@ -301,29 +306,40 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private void failed(TreeItem<Instruction<?>> currentInstruction2) {
+	private void failed(TreeItem<Instruction<?>> instr) {
+		failed(instr, false);
+	}
+
+	private void failed(TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
 		failed = true;
 		try {
-			graphicChangeSemaphore.acquire();
+			if (!forced)
+				graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
 				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
 				waitFor(SET_GRAPHIC_DELAY);
-				graphicChangeSemaphore.release();
+				if (!forced)
+					graphicChangeSemaphore.release();
 			};
 			Platform.runLater(changeGrapics);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
-	private void success(TreeItem<Instruction<?>> currentInstruction2) {
+	private void success(TreeItem<Instruction<?>> instr) {
+		success(instr, false);
+	}
+
+	private void success(TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
 		try {
-			graphicChangeSemaphore.acquire();
+			if (!forced)
+				graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
 				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
 				waitFor(SET_GRAPHIC_DELAY);
-				graphicChangeSemaphore.release();
+				if (!forced)
+					graphicChangeSemaphore.release();
 			};
 			Platform.runLater(changeGrapics);
 		} catch (InterruptedException e) {
@@ -349,13 +365,18 @@ public class ScriptExecutor implements Runnable {
 	}
 
 	@SuppressWarnings("deprecation")
-	public void forcedStop() {
+	private void forcedStop(boolean success) {
 		failed = true;
 		onFinish(true);
 		if (runningInstruction != null && runningInstruction.isAlive()) {
 			runningInstruction.stop();
-			failed(currentInstruction);
+			if (!success)
+				failed(currentInstruction, true);
 		}
+	}
+
+	public void forcedStop() {
+		forcedStop(false);
 	}
 
 }
