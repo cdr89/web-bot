@@ -12,10 +12,12 @@ import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.instruction.ClickInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.XMLUtils;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -69,12 +71,22 @@ public class PopupActionEditController implements Initializable {
 		okButton.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				if (instructionCallBack != null) {
+				if (instructionCallBack != null) { // new action
 					Instruction<?> instruction = buildInstruction();
 					instructionCallBack.accept(instruction);
-				} else if (instructionItem != null) {
+				} else if (instructionItem != null) { // edit action
 					Instruction<?> instruction = buildInstruction();
 					instructionItem.setValue(instruction);
+					if (!(instruction instanceof Block)) {
+						ObservableList<TreeItem<Instruction<?>>> children = instructionItem.getChildren();
+						if (children != null && !children.isEmpty()) {
+							ObservableList<TreeItem<Instruction<?>>> siblings = instructionItem.getParent()
+									.getChildren();
+							int indexOfEditedInstruction = siblings.indexOf(instructionItem);
+							siblings.addAll(indexOfEditedInstruction + 1, children);
+							children.clear();
+						}
+					}
 				}
 
 				UIUtils.closeDialogFromEvent(event);
