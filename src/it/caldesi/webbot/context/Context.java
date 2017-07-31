@@ -15,6 +15,7 @@ import it.caldesi.webbot.model.annotations.AssignableInstruction;
 import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
+import it.caldesi.webbot.model.annotations.UIInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.Utils;
 import javafx.collections.FXCollections;
@@ -22,35 +23,28 @@ import javafx.collections.ObservableList;
 
 public class Context {
 
-	private static List<String> instructionTypes;
+	private static List<String> instructionTypes = new LinkedList<>();
 	private static ObservableList<String> observableInstructionTypes;
 
-	private static List<Class<?>> instructionClassList;
-	private static Map<String, Class<?>> instructionByType;
+	private static List<Class<?>> instructionClassList = new LinkedList<>();
+	private static Map<String, Class<?>> instructionByType = new HashMap<>();
 
 	// fields
-	private static Set<Class<?>> hasNoArgument;
-	private static Set<Class<?>> hasNoTarget;
-	private static Set<Class<?>> assignable;
-	private static Map<String, Type> argumentTypes;
-	private static Set<String> onlyPositiveIntegerArgument;
+	private static Set<Class<?>> hasNoArgument = new HashSet<>();
+	private static Set<Class<?>> hasNoTarget = new HashSet<>();
+	private static Set<Class<?>> assignable = new HashSet<>();
+	private static Set<Class<?>> uiInstructions = new HashSet<>();
+	private static Map<String, Type> argumentTypes = new HashMap<>();
+	private static Set<String> onlyPositiveIntegerArgument = new HashSet<>();
 
 	private static String[] PACKAGES_INSTRUCTION = { "it.caldesi.webbot.model.instruction",
 			"it.caldesi.webbot.model.instruction.block" };
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
 
 	public static void loadContext() throws Exception {
-		instructionClassList = new LinkedList<>();
 		for (String pack : PACKAGES_INSTRUCTION) {
 			instructionClassList.addAll(Utils.getClassesForPackage(pack, false));
 		}
-		instructionTypes = new LinkedList<>();
-		instructionByType = new HashMap<>();
-		hasNoArgument = new HashSet<>();
-		hasNoTarget = new HashSet<>();
-		assignable = new HashSet<>();
-		argumentTypes = new HashMap<>();
-		onlyPositiveIntegerArgument = new HashSet<>();
 
 		for (Class<?> c : instructionClassList) {
 			if (!Modifier.isAbstract(c.getModifiers()) && !c.isAnnotationPresent(InvisibleInstruction.class)) {
@@ -74,6 +68,8 @@ public class Context {
 						hasNoTarget.add(c);
 					if (c.isAnnotationPresent(AssignableInstruction.class))
 						assignable.add(c);
+					if (c.isAnnotationPresent(UIInstruction.class))
+						uiInstructions.add(c);
 				} catch (Exception e) {
 					System.out.println("Cannot find field " + FIELD_INSTRUCTION_NAME + " on type: " + c.getName());
 				}
@@ -108,6 +104,10 @@ public class Context {
 	public static boolean isAssignable(String actionName) {
 		Class<?> instrClass = getInstructionByType(actionName);
 		return assignable.contains(instrClass);
+	}
+
+	public static boolean isUIInstruction(Class<?> instrClass) {
+		return uiInstructions.contains(instrClass);
 	}
 
 	public static ObservableList<String> getInstructionsObservableList() {

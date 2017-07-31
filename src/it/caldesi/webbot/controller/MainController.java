@@ -314,8 +314,10 @@ public class MainController implements Initializable {
 		if (result.get() == ButtonType.OK) {
 			if (scriptExecutor != null && scriptExecutorThread != null) {
 				if (scriptExecutorThread.isAlive()) {
-					scriptExecutor.stopThread();
+					scriptExecutor.forcedStop();
 					scriptExecutorThread.stop();
+					scriptExecutor = null;
+					scriptExecutorThread = null;
 				}
 			}
 		} else {

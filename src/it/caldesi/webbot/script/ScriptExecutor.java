@@ -144,6 +144,10 @@ public class ScriptExecutor implements Runnable {
 	private boolean finished = false;
 
 	private void onFinish() {
+		onFinish(false);
+	}
+
+	private void onFinish(boolean forced) {
 		if (finished)
 			return;
 		finished = true;
@@ -151,10 +155,12 @@ public class ScriptExecutor implements Runnable {
 		Runnable onFinishRunnable = () -> {
 			waitFor(globalDelay);
 			boolean acquired = false;
-			try {
-				acquired = execSemaphore.tryAcquire(10, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+			if (!forced) {
+				try {
+					acquired = execSemaphore.tryAcquire(10, TimeUnit.SECONDS);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
 			recordController.onFinishExecution();
@@ -163,7 +169,7 @@ public class ScriptExecutor implements Runnable {
 			recordController.stopButton.setDisable(true);
 			recordController.goButton.setDisable(false);
 			recordController.addressTextField.setDisable(false);
-			if (execSemaphore.availablePermits() == 0 && acquired)
+			if (!forced && execSemaphore.availablePermits() == 0 && acquired)
 				execSemaphore.release();
 		};
 		Platform.runLater(onFinishRunnable);
@@ -186,6 +192,8 @@ public class ScriptExecutor implements Runnable {
 
 	private boolean failed = false;
 
+	private Thread runningInstruction;
+
 	@Override
 	public void run() {
 		while (hasNextInstruction() && !failed) {
@@ -197,49 +205,48 @@ public class ScriptExecutor implements Runnable {
 			currentInstruction = nextInstruction();
 			Instruction<?> instruction = currentInstruction.getValue();
 
-			if (instruction instanceof Block) {
-				executing(currentInstruction);
-				currentInstruction.setExpanded(true);
-
-				if (instruction instanceof IfBlock) {
-					IfBlock ifBlock = (IfBlock) instruction;
-					try {
-						if (ifBlock.evaluateCondition(scriptExecutionContext))
-							addInstructionsToExecute(currentInstruction.getChildren());
-						success(currentInstruction);
-					} catch (GenericException e) {
-						failed = true;
-						failed(currentInstruction);
-						onFinish();
-						e.printStackTrace();
-						break;
-					}
-					continue;
-				} else if (instruction instanceof WhileBlock) {
-					WhileBlock whileBlock = (WhileBlock) instruction;
-					try {
-						if (whileBlock.evaluateCondition(scriptExecutionContext)) {
-							addInstructionToExecute(currentInstruction);
-							addInstructionsToExecute(currentInstruction.getChildren());
-						}
-						success(currentInstruction);
-					} catch (GenericException e) {
-						failed = true;
-						failed(currentInstruction);
-						onFinish();
-						e.printStackTrace();
-						break;
-					}
-					continue;
-				}
-			}
-
 			try {
 				executing(currentInstruction);
 
 				System.out.println("[scriptExecutor] Acquire mutex");
 				mutex.acquire();
 				waitFor(instruction.getDelay());
+
+				if (instruction instanceof Block) {
+					currentInstruction.setExpanded(true);
+
+					if (instruction instanceof IfBlock) {
+						IfBlock ifBlock = (IfBlock) instruction;
+						try {
+							if (ifBlock.evaluateCondition(scriptExecutionContext))
+								addInstructionsToExecute(currentInstruction.getChildren());
+							success(currentInstruction);
+						} catch (GenericException e) {
+							failed = true;
+							failed(currentInstruction);
+							onFinish();
+							e.printStackTrace();
+							break;
+						}
+						continue;
+					} else if (instruction instanceof WhileBlock) {
+						WhileBlock whileBlock = (WhileBlock) instruction;
+						try {
+							if (whileBlock.evaluateCondition(scriptExecutionContext)) {
+								addInstructionToExecute(currentInstruction);
+								addInstructionsToExecute(currentInstruction.getChildren());
+							}
+							success(currentInstruction);
+						} catch (GenericException e) {
+							failed = true;
+							failed(currentInstruction);
+							onFinish();
+							e.printStackTrace();
+							break;
+						}
+						continue;
+					}
+				}
 
 				if (lastState == State.CANCELLED || lastState == State.FAILED) {
 					failed = true;
@@ -254,7 +261,6 @@ public class ScriptExecutor implements Runnable {
 
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
-						// execSemaphore.acquire();
 						execute(instr);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -266,10 +272,13 @@ public class ScriptExecutor implements Runnable {
 								+ execSemaphore.availablePermits());
 					}
 				};
-				Thread instrThread = new Thread(instructionRunnable);
+				runningInstruction = new Thread(instructionRunnable);
 				graphicChangeSemaphore.acquire();
 				execSemaphore.acquire();
-				Platform.runLater(instrThread);
+				if (Context.isUIInstruction(instruction.getClass()))
+					Platform.runLater(runningInstruction);
+				else
+					runningInstruction.start();
 				graphicChangeSemaphore.release();
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -339,9 +348,14 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	public void stopThread() {
+	@SuppressWarnings("deprecation")
+	public void forcedStop() {
 		failed = true;
-		onFinish();
+		onFinish(true);
+		if (runningInstruction != null && runningInstruction.isAlive()) {
+			runningInstruction.stop();
+			failed(currentInstruction);
+		}
 	}
 
 }

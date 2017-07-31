@@ -4,11 +4,13 @@ import java.io.IOException;
 import java.util.Map;
 
 import it.caldesi.webbot.exception.GenericException;
+import it.caldesi.webbot.model.annotations.UIInstruction;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
+@UIInstruction
 public abstract class JSInstruction<T> extends Instruction<T> {
 
 	public JSInstruction(String name) {
@@ -31,14 +33,13 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 
 	protected void executeJS(WebView webView, Map<String, String> paramValues) throws GenericException {
 		WebEngine engine = webView.getEngine();
-		String script;
 		try {
-			script = getJSScript(paramValues);
+			String script = getJSScript(paramValues);
+			engine.executeScript(script);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GenericException(e);
 		}
-		engine.executeScript(script);
 	}
 
 }

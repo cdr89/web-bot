@@ -6,11 +6,13 @@ import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.AssignableInstruction;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
+import it.caldesi.webbot.model.annotations.UIInstruction;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.web.WebView;
 
 @NoTargetInstruction
 @AssignableInstruction
+@UIInstruction
 public class UserInputInstruction extends Instruction<String> {
 
 	public static final String NAME = "userInput";
