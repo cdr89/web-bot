@@ -3,6 +3,7 @@ package it.caldesi.webbot.controller;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import org.w3c.dom.Document;
@@ -38,6 +39,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextField;
@@ -87,6 +89,8 @@ public class MainController implements Initializable {
 	public Button goButton;
 	@FXML
 	public Button executeButton;
+	@FXML
+	public Button stopButton;
 	@FXML
 	public TextField addressTextField;
 
@@ -288,11 +292,35 @@ public class MainController implements Initializable {
 		UIUtils.clearExecutionIndicators(rows);
 
 		executeButton.setDisable(true);
+		stopButton.setDisable(false);
 		goButton.setDisable(true);
 		addressTextField.setDisable(true);
 
-		ScriptExecutor scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
-		new Thread(scriptExecutor).start();
+		scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
+		(scriptExecutorThread = new Thread(scriptExecutor)).start();
+	}
+
+	private ScriptExecutor scriptExecutor;
+	private Thread scriptExecutorThread;
+
+	@SuppressWarnings("deprecation")
+	public void stopScript() {
+		Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle(resources.getString("scene.record.alert.stop.title"));
+		alert.setHeaderText(resources.getString("scene.record.alert.stop.header"));
+		alert.setContentText(resources.getString("scene.record.alert.stop.content"));
+
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.get() == ButtonType.OK) {
+			if (scriptExecutor != null && scriptExecutorThread != null) {
+				if (scriptExecutorThread.isAlive()) {
+					scriptExecutor.stopThread();
+					scriptExecutorThread.stop();
+				}
+			}
+		} else {
+			return;
+		}
 	}
 
 	private void mouseListener(MouseEvent mouseEvent) {

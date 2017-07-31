@@ -20,6 +20,8 @@
 					text="%scene.record.topbar.address.goButton" />
 				<Button fx:id="executeButton" mnemonicParsing="false"
 					onAction="#executeScript" text="%scene.record.topbar.address.executeButton" />
+				<Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopScript"
+					disable="true" text="%scene.record.topbar.address.stopButton" />
 			</children>
 		</HBox>
 	</top>

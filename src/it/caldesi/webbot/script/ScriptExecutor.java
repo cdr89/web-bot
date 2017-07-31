@@ -160,6 +160,7 @@ public class ScriptExecutor implements Runnable {
 			recordController.onFinishExecution();
 			System.out.println("Enabling controls");
 			recordController.executeButton.setDisable(false);
+			recordController.stopButton.setDisable(true);
 			recordController.goButton.setDisable(false);
 			recordController.addressTextField.setDisable(false);
 			if (execSemaphore.availablePermits() == 0 && acquired)
@@ -189,6 +190,9 @@ public class ScriptExecutor implements Runnable {
 	public void run() {
 		while (hasNextInstruction() && !failed) {
 			waitFor(globalDelay);
+
+			if (failed)
+				break;
 
 			currentInstruction = nextInstruction();
 			Instruction<?> instruction = currentInstruction.getValue();
@@ -229,9 +233,6 @@ public class ScriptExecutor implements Runnable {
 					continue;
 				}
 			}
-
-			if (failed)
-				break;
 
 			try {
 				executing(currentInstruction);
@@ -336,6 +337,11 @@ public class ScriptExecutor implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void stopThread() {
+		failed = true;
+		onFinish();
 	}
 
 }
