@@ -206,7 +206,7 @@ public class MainController implements Initializable {
 
 			Stage stage = new Stage();
 			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.setTitle("New Action");
+			stage.setTitle("Action"); // TODO from properties
 			stage.setScene(new Scene(root1));
 
 			PopupActionEditController controller = loader.<PopupActionEditController> getController();
