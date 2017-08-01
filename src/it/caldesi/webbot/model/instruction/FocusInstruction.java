@@ -9,11 +9,11 @@ import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import javafx.scene.web.WebView;
 
 @NoArgumentInstruction
-public class ClickInstruction extends JSInstruction<Void> {
+public class FocusInstruction extends JSInstruction<Void> {
 
-	public static final String NAME = "click";
+	public static final String NAME = "focus";
 
-	public ClickInstruction() {
+	public FocusInstruction() {
 		super(NAME);
 	}
 

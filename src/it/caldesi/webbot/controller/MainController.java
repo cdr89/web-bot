@@ -1,5 +1,7 @@
 package it.caldesi.webbot.controller;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -198,8 +200,19 @@ public class MainController implements Initializable {
 		});
 	}
 
-	private void loadPage(String url) {
-		webEngine.load(url);
+	private void loadPage(String urlString) {
+		String filePrefix = "file://";
+		if (urlString.startsWith(filePrefix))
+			try {
+				urlString = urlString.substring(filePrefix.length());
+				// System.out.println(urlString);
+				File resourceFile = new File(urlString);
+				URL url = resourceFile.toURI().toURL();
+				urlString = url.toExternalForm();
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
+		webEngine.load(urlString);
 	}
 
 	private void newActionPopup(Event ev) {

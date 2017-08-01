@@ -13,7 +13,7 @@ import java.util.jar.JarFile;
 public class Utils {
 
 	public static String adjustUrl(String url) {
-		if (!url.startsWith("http://") && !url.startsWith("https://"))
+		if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("file://"))
 			url = "http://" + url;
 		return url;
 	}
@@ -53,8 +53,8 @@ public class Utils {
 				if (files[i].endsWith(".class")) {
 					// removes the .class extension
 					String className = pkgname + '.' + files[i].substring(0, files[i].length() - 6);
-					if(!subClasses){
-						if(className.contains("$"))
+					if (!subClasses) {
+						if (className.contains("$"))
 							continue;
 					}
 					System.out.println("ClassDiscovery: className = " + className);
@@ -77,8 +77,8 @@ public class Utils {
 					if (entryName.startsWith(relPath) && entryName.length() > (relPath.length() + "/".length())) {
 						System.out.println("ClassDiscovery: JarEntry: " + entryName);
 						String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
-						if(!subClasses){
-							if(className.contains("$"))
+						if (!subClasses) {
+							if (className.contains("$"))
 								continue;
 						}
 						System.out.println("ClassDiscovery: className = " + className);
