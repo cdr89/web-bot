@@ -39,6 +39,7 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 		WebEngine engine = webView.getEngine();
 		try {
 			String script = getJSScript(paramValues);
+			System.out.println("Executing script: " + script);
 			engine.executeScript(script);
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,0 +1,1 @@
+getElementByXPath($#target#$).singleNodeValue;
