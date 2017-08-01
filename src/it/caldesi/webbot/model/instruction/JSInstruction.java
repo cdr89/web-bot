@@ -1,8 +1,10 @@
 package it.caldesi.webbot.model.instruction;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.UIInstruction;
 import it.caldesi.webbot.utils.FileUtils;
@@ -40,6 +42,23 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 			e.printStackTrace();
 			throw new GenericException(e);
 		}
+	}
+
+	@Override
+	public T execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
+		setParams();
+		executeJS(webView, paramValues);
+
+		return null;
+	}
+
+	protected Map<String, String> paramValues = new HashMap<>();
+
+	protected void setParams() {
+		// TODO escape the XPath
+		paramValues.put("objectXPath", objectXPath);
+		// TODO escape value
+		paramValues.put("value", arg);
 	}
 
 }

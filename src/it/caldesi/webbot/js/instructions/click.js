@@ -1,1 +1,2 @@
-document.evaluate( "$#objectXPath#$" ,document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null ).singleNodeValue.click();
+var elToClick = getElementByXPath("$#objectXPath#$");
+elToClick.click();

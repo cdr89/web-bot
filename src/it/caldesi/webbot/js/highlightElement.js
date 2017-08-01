@@ -1,2 +1,2 @@
-var elToHilight = getElementByXPath("$#xPath#$");
-highlight(elToHilight);
+var elToHighlight = getElementByXPath("$#xPath#$");
+highlight(elToHighlight);

@@ -3,11 +3,11 @@ package it.caldesi.webbot.model.instruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 
 @NoArgumentInstruction
-public class ClickInstruction extends JSInstruction<Void> {
+public class HighlightInstruction extends JSInstruction<Void> {
 
-	public static final String NAME = "click";
+	public static final String NAME = "highlight";
 
-	public ClickInstruction() {
+	public HighlightInstruction() {
 		super(NAME);
 	}
 
