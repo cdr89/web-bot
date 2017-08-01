@@ -1,2 +1,1 @@
-var elToClick = getElementByXPath("$#objectXPath#$");
-elToClick.click();
+webbot_target.click();

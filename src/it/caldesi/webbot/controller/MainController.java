@@ -81,7 +81,7 @@ public class MainController implements Initializable {
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColAction;
 	@FXML
-	private TreeTableColumn<Instruction<?>, String> treeColObj;
+	private TreeTableColumn<Instruction<?>, String> treeColTarget;
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColArgs;
 	@FXML
@@ -128,7 +128,7 @@ public class MainController implements Initializable {
 		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("label"));
 		treeColVariable.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("variable"));
 		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));
-		treeColObj.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("objectXPath"));
+		treeColTarget.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("target"));
 		treeColArgs.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("arg"));
 		treeColDelay.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("delay"));
 

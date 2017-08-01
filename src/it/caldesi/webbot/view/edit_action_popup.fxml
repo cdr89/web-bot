@@ -13,8 +13,8 @@
 			<children>
 				<HBox prefHeight="31.0" prefWidth="300.0">
 					<children>
-						<Label text="XPath:" />
-						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="xpathField" />
+						<Label text="Target:" />
+						<TextField prefHeight="25.0" prefWidth="264.0" fx:id="targetField" />
 					</children>
 				</HBox>
 				<HBox prefHeight="35.0" prefWidth="300.0">

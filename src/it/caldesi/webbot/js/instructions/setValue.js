@@ -1,3 +1,2 @@
-var element = getElementByXPath("$#objectXPath#$");
-var value = "$#value#$";
-element.value = value;
+var webbot_value = $#value#$;
+webbot_target.value = webbot_value;

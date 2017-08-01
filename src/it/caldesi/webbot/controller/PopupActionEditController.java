@@ -33,7 +33,7 @@ import javafx.util.converter.IntegerStringConverter;
 public class PopupActionEditController implements Initializable {
 
 	@FXML
-	TextField xpathField;
+	TextField targetField;
 	@FXML
 	TextField delayField;
 	@FXML
@@ -141,13 +141,13 @@ public class PopupActionEditController implements Initializable {
 		if (Context.hasNoArgument(instructionByType))
 			argField.setDisable(true);
 		if (Context.hasNoTarget(instructionByType))
-			xpathField.setDisable(true);
+			targetField.setDisable(true);
 		if (!Context.isAssignable(instructionByType))
 			variableField.setDisable(true);
 	}
 
 	private void enableAllFields() {
-		xpathField.setDisable(false);
+		targetField.setDisable(false);
 		delayField.setDisable(false);
 		labelField.setDisable(false);
 		argField.setDisable(false);
@@ -155,7 +155,7 @@ public class PopupActionEditController implements Initializable {
 	}
 
 	private void disableAllFields() {
-		xpathField.setDisable(true);
+		targetField.setDisable(true);
 		delayField.setDisable(true);
 		labelField.setDisable(true);
 		argField.setDisable(true);
@@ -167,7 +167,7 @@ public class PopupActionEditController implements Initializable {
 			return;
 		Element el = (Element) ev.getTarget();
 		String xPath = XMLUtils.getFullXPath(el);
-		xpathField.setText(xPath);
+		targetField.setText(xPath);
 	}
 
 	public void initActionData(TreeItem<Instruction<?>> instructionItem) {
@@ -175,7 +175,7 @@ public class PopupActionEditController implements Initializable {
 		Instruction<?> instruction = instructionItem.getValue();
 
 		actionCombobox.setValue(instruction.getActionName());
-		xpathField.setText(instruction.getObjectXPath());
+		targetField.setText(instruction.getTarget());
 		labelField.setText(instruction.getLabel());
 		argField.setText(instruction.getArg());
 		variableField.setText(instruction.getVariable());
@@ -190,7 +190,7 @@ public class PopupActionEditController implements Initializable {
 		String actionName = actionCombobox.getSelectionModel().getSelectedItem();
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
 		if (!Context.hasNoTarget(actionName))
-			instruction.setObjectXPath(xpathField.getText());
+			instruction.setTarget(targetField.getText());
 		instruction.setLabel(labelField.getText());
 		if (!Context.hasNoArgument(actionName))
 			instruction.setArg(argField.getText());

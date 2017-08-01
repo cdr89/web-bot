@@ -25,8 +25,8 @@ function getXPath(element) {
 	return xpath;
 }
 
-function highlight(element) {
-	var div = highlight.div; // only highlight one element per page
+function webbot_highlight(element) {
+	var div = webbot_highlight.div; // only highlight one element per page
 
 	if (element === null) { // remove highlight via `highlight(null)`
 		if (div.parentNode)
@@ -45,10 +45,10 @@ function highlight(element) {
 	div.style.top = element.offsetTop + (height - div.offsetHeight) / 2 + 'px';
 }
 
-highlight.div = document.createElement('div');
+webbot_highlight.div = document.createElement('div');
 
 // set highlight styles
-with (highlight.div.style) {
+with (webbot_highlight.div.style) {
 	position = 'absolute';
 	border = '5px solid yellow';
 }
@@ -56,6 +56,6 @@ with (highlight.div.style) {
 function getElementByXPath(xPath) {
 	var element = document.evaluate(xPath, document, null,
 			XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-	
+
 	return element;
 }

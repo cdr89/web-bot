@@ -1,2 +1,2 @@
-var elToHighlight = getElementByXPath("$#xPath#$");
-highlight(elToHighlight);
+var webbot_elToHighlight = getElementByXPath("$#xPath#$");
+webbot_highlight(webbot_elToHighlight);

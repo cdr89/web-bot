@@ -39,8 +39,8 @@
 					text="%scene.record.scriptList.col.variable" />
 				<TreeTableColumn fx:id="treeColAction" prefWidth="100.0"
 					text="%scene.record.scriptList.col.action" />
-				<TreeTableColumn fx:id="treeColObj" prefWidth="100.0"
-					text="%scene.record.scriptList.col.object" />
+				<TreeTableColumn fx:id="treeColTarget" prefWidth="100.0"
+					text="%scene.record.scriptList.col.target" />
 				<TreeTableColumn fx:id="treeColArgs" prefWidth="100.0"
 					text="%scene.record.scriptList.col.args" />
 				<TreeTableColumn fx:id="treeColDelay" prefWidth="100.0"

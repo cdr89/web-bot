@@ -1,1 +1,1 @@
-highlight(null);
+webbot_highlight(null);

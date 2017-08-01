@@ -11,7 +11,7 @@ public abstract class Instruction<T> {
 
 	protected String label;
 	protected String variable;
-	protected String objectXPath;
+	protected String target;
 	protected String arg;
 	protected long delay;
 
@@ -47,12 +47,12 @@ public abstract class Instruction<T> {
 		this.variable = variable;
 	}
 
-	public String getObjectXPath() {
-		return objectXPath;
+	public String getTarget() {
+		return target;
 	}
 
-	public void setObjectXPath(String objectXPath) {
-		this.objectXPath = objectXPath;
+	public void setTarget(String target) {
+		this.target = target;
 	}
 
 	public String getArg() {

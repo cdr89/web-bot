@@ -1,4 +1,3 @@
-var eventTarget = getElementByXPath("$#objectXPath#$");
-var evObj = document.createEvent("MouseEvents");
-evObj.initEvent("blur", true, false);
-eventTarget.dispatchEvent(evObj);
+var webbot_evObj = document.createEvent("MouseEvents");
+webbot_evObj.initEvent("blur", true, false);
+webbot_target.dispatchEvent(webbot_evObj);
