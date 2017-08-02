@@ -106,6 +106,7 @@ public class MainController implements Initializable {
 
 	public ChangeListener<State> recordListener;
 	private EventListener clickElementListener;
+	// private EventListener overElementListener;
 
 	private static String functionsJS = FileUtils.readResource("/it/caldesi/webbot/js/functions.js");
 	private static String highlightJS = FileUtils.readResource("/it/caldesi/webbot/js/highlightElement.js");
@@ -176,6 +177,9 @@ public class MainController implements Initializable {
 
 					clickElementListener = new EventListener() {
 						public void handleEvent(Event ev) {
+							// remove highlight
+							webView.getEngine().executeScript(removeHighlightJS);
+
 							// highlight component
 							Element el = (Element) ev.getTarget();
 							String xPath = XMLUtils.getFullXPath(el);
@@ -192,9 +196,39 @@ public class MainController implements Initializable {
 						}
 					};
 
+					// overElementListener = new EventListener() {
+					// String lastElementHighlighted = null;
+					//
+					// public void handleEvent(Event ev) {
+					// Element el = (Element) ev.getTarget();
+					// String xPath = XMLUtils.getFullXPath(el);
+					//
+					// if (xPath.equals(lastElementHighlighted))
+					// return;
+					//
+					// try {
+					// // remove highlight
+					// webView.getEngine().executeScript(removeHighlightJS);
+					//
+					// // highlight component
+					// Map<String, String> paramValues = new HashMap<>();
+					// paramValues.put("xPath", xPath);
+					// String highlightCompiled =
+					// JSUtils.loadParametrizedJS(highlightJS, paramValues);
+					// webView.getEngine().executeScript(highlightCompiled);
+					//
+					// lastElementHighlighted = xPath;
+					// } catch (Exception e) {
+					// // e.printStackTrace();
+					// }
+					// }
+					// };
+
 					Document doc = webEngine.getDocument();
 					Element el = doc.getDocumentElement();
-					((EventTarget) el).addEventListener("click", clickElementListener, false);
+					((EventTarget) el).addEventListener("click", clickElementListener, true);
+					// ((EventTarget) el).addEventListener("mouseover",
+					// overElementListener, false);
 				}
 			}
 		});
@@ -223,7 +257,7 @@ public class MainController implements Initializable {
 
 			Stage stage = new Stage();
 			stage.initModality(Modality.APPLICATION_MODAL);
-			stage.setTitle("Action"); // TODO from properties
+			stage.setTitle("Action");
 			stage.setScene(new Scene(root1));
 
 			PopupActionEditController controller = loader.<PopupActionEditController> getController();
@@ -236,7 +270,15 @@ public class MainController implements Initializable {
 				try {
 					webView.getEngine().executeScript(removeHighlightJS);
 				} catch (Exception e) {
-					// ignore TODO log e.printStackTrace();
+					e.printStackTrace();
+				}
+			});
+
+			stage.setOnCloseRequest(event -> {
+				try {
+					webView.getEngine().executeScript(removeHighlightJS);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 			});
 
@@ -503,6 +545,10 @@ public class MainController implements Initializable {
 
 			((EventTarget) el).removeEventListener("click", clickElementListener, false);
 			((EventTarget) el).addEventListener("click", clickElementListener, false);
+			// ((EventTarget) el).removeEventListener("mouseover",
+			// overElementListener, false);
+			// ((EventTarget) el).addEventListener("mouseover",
+			// overElementListener, false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

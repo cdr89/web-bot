@@ -35,14 +35,22 @@ function webbot_highlight(element) {
 	}
 
 	var width = element.offsetWidth, height = element.offsetHeight;
+	var rect = element.getBoundingClientRect();
 
 	div.style.width = width + 'px';
 	div.style.height = height + 'px';
 
-	element.offsetParent.appendChild(div);
+	// element.offsetParent.appendChild(div);
+	var bodyElement = document.getElementsByTagName("BODY")[0];
+	bodyElement.appendChild(div);
 
-	div.style.left = element.offsetLeft + (width - div.offsetWidth) / 2 + 'px';
-	div.style.top = element.offsetTop + (height - div.offsetHeight) / 2 + 'px';
+	// div.style.left = element.offsetLeft + (width - div.offsetWidth) / 2 +
+	// 'px';
+	// div.style.top = element.offsetTop + (height - div.offsetHeight) / 2 +
+	// 'px';
+
+	div.style.left = rect.left + (width - div.offsetWidth) / 2 + 'px';
+	div.style.top = rect.top + (height - div.offsetHeight) / 2 + 'px';
 }
 
 webbot_highlight.div = document.createElement('div');
