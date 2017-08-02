@@ -1,6 +1,6 @@
 package it.caldesi.webbot.model.instruction;
 
-public class SetValueInstruction extends JSInstruction<Void> {
+public class SetValueInstruction extends JSInstruction {
 
 	public static final String NAME = "setValue";
 

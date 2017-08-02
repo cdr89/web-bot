@@ -5,7 +5,7 @@ import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 
 @NoArgumentInstruction
 @NoTargetInstruction
-public class RemoveHighlightInstruction extends JSInstruction<Void> {
+public class RemoveHighlightInstruction extends JSInstruction {
 
 	public static final String NAME = "removeHighlight";
 

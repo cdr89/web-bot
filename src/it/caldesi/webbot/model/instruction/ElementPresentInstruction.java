@@ -9,7 +9,7 @@ import netscape.javascript.JSException;
 
 @NoArgumentInstruction
 @AssignableInstruction
-public class ElementPresentInstruction extends JSInstruction<Boolean> {
+public class ElementPresentInstruction extends JSInstruction {
 
 	public static final String NAME = "elementPresent";
 

@@ -15,7 +15,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 
 @UIInstruction
-public abstract class JSInstruction<T> extends Instruction<T> {
+public abstract class JSInstruction extends Instruction<Object> {
 
 	public JSInstruction(String name) {
 		super(name);
@@ -35,12 +35,12 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 		return script;
 	}
 
-	protected void executeJS(WebView webView, Map<String, String> paramValues) throws GenericException {
+	protected Object executeJS(WebView webView, Map<String, String> paramValues) throws GenericException {
 		WebEngine engine = webView.getEngine();
 		try {
 			String script = getJSScript(paramValues);
 			System.out.println("Executing script: " + script);
-			engine.executeScript(script);
+			return engine.executeScript(script);
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new GenericException(e);
@@ -48,11 +48,9 @@ public abstract class JSInstruction<T> extends Instruction<T> {
 	}
 
 	@Override
-	public T execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
+	public Object execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
 		setParams(webView.getEngine());
-		executeJS(webView, paramValues);
-
-		return null;
+		return executeJS(webView, paramValues);
 	}
 
 	protected Map<String, String> paramValues = new HashMap<>();

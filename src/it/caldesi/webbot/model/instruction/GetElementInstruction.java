@@ -9,7 +9,7 @@ import javafx.scene.web.WebView;
 
 @NoArgumentInstruction
 @AssignableInstruction
-public class GetElementInstruction extends JSInstruction<String> {
+public class GetElementInstruction extends JSInstruction {
 
 	public static final String NAME = "getElement";
 

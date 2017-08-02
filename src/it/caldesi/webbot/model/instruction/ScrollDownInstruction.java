@@ -5,7 +5,7 @@ import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 
 @NoArgumentInstruction
 @NoTargetInstruction
-public class ScrollDownInstruction extends JSInstruction<String> {
+public class ScrollDownInstruction extends JSInstruction {
 
 	public static final String NAME = "scrollDown";
 
