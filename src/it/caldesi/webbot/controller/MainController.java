@@ -395,6 +395,7 @@ public class MainController implements Initializable {
 		if (selectedItem != null) {
 			if (keyEvent.getCode().equals(KeyCode.DELETE)) {
 				selectedItem.getParent().getChildren().remove(selectedItem);
+				scriptTreeTable.getSelectionModel().clearSelection();
 			}
 		}
 	}
