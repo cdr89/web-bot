@@ -196,39 +196,9 @@ public class MainController implements Initializable {
 						}
 					};
 
-					// overElementListener = new EventListener() {
-					// String lastElementHighlighted = null;
-					//
-					// public void handleEvent(Event ev) {
-					// Element el = (Element) ev.getTarget();
-					// String xPath = XMLUtils.getFullXPath(el);
-					//
-					// if (xPath.equals(lastElementHighlighted))
-					// return;
-					//
-					// try {
-					// // remove highlight
-					// webView.getEngine().executeScript(removeHighlightJS);
-					//
-					// // highlight component
-					// Map<String, String> paramValues = new HashMap<>();
-					// paramValues.put("xPath", xPath);
-					// String highlightCompiled =
-					// JSUtils.loadParametrizedJS(highlightJS, paramValues);
-					// webView.getEngine().executeScript(highlightCompiled);
-					//
-					// lastElementHighlighted = xPath;
-					// } catch (Exception e) {
-					// // e.printStackTrace();
-					// }
-					// }
-					// };
-
 					Document doc = webEngine.getDocument();
 					Element el = doc.getDocumentElement();
-					((EventTarget) el).addEventListener("click", clickElementListener, true);
-					// ((EventTarget) el).addEventListener("mouseover",
-					// overElementListener, false);
+					((EventTarget) el).addEventListener("click", clickElementListener, false);
 				}
 			}
 		});
@@ -546,10 +516,6 @@ public class MainController implements Initializable {
 
 			((EventTarget) el).removeEventListener("click", clickElementListener, false);
 			((EventTarget) el).addEventListener("click", clickElementListener, false);
-			// ((EventTarget) el).removeEventListener("mouseover",
-			// overElementListener, false);
-			// ((EventTarget) el).addEventListener("mouseover",
-			// overElementListener, false);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
