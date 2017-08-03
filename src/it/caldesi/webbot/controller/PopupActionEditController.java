@@ -142,6 +142,8 @@ public class PopupActionEditController implements Initializable {
 			argField.setDisable(true);
 		if (Context.hasNoTarget(instructionByType))
 			targetField.setDisable(true);
+		if (Context.hasNoDelay(instructionByType))
+			delayField.setDisable(true);
 		if (!Context.isAssignable(instructionByType))
 			variableField.setDisable(true);
 	}
@@ -197,7 +199,8 @@ public class PopupActionEditController implements Initializable {
 		if (Context.isAssignable(actionName))
 			instruction.setVariable(variableField.getText());
 		try {
-			instruction.setDelay(Long.parseLong(delayField.getText()));
+			if (!Context.hasNoDelay(actionName))
+				instruction.setDelay(Long.parseLong(delayField.getText()));
 		} catch (Exception e) {
 			instruction.setDelay(0);
 			e.printStackTrace();

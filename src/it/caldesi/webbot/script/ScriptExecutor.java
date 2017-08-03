@@ -13,6 +13,7 @@ import it.caldesi.webbot.exception.StopExecutionException;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.PageInstruction;
 import it.caldesi.webbot.model.instruction.block.Block;
+import it.caldesi.webbot.model.instruction.block.ForTimesBlock;
 import it.caldesi.webbot.model.instruction.block.IfBlock;
 import it.caldesi.webbot.model.instruction.block.WhileBlock;
 import it.caldesi.webbot.utils.UIUtils;
@@ -252,6 +253,23 @@ public class ScriptExecutor implements Runnable {
 							onFinish();
 							e.printStackTrace();
 							break;
+						}
+						continue;
+					} else if (instruction instanceof ForTimesBlock) {
+						ForTimesBlock forTimesBlock = (ForTimesBlock) instruction;
+						success(currentInstruction);
+						Integer execCount = scriptExecutionContext.forTimesCounters.get(forTimesBlock);
+						if (execCount == null) {
+							int count = Integer.parseInt(forTimesBlock.getArg());
+							scriptExecutionContext.forTimesCounters.put(forTimesBlock, count);
+							execCount = count;
+						}
+						if (execCount == 0)
+							continue;
+						if (execCount > 0) {
+							scriptExecutionContext.forTimesCounters.put(forTimesBlock, execCount - 1);
+							addInstructionToExecute(currentInstruction);
+							addInstructionsToExecute(currentInstruction.getChildren());
 						}
 						continue;
 					}

@@ -9,16 +9,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 @Inherited
-public @interface ArgumentType {
-
-	public enum Type {
-		STRING, INTEGER, BOOLEAN
-	}
-
-	Type type() default Type.STRING;
-
-	boolean nullable() default false;
-
-	boolean onlyPositive() default true;
+public @interface NoDelayInstruction {
 
 }

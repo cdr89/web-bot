@@ -11,7 +11,7 @@ import javafx.scene.web.WebView;
 @AssignableInstruction
 public class GetElementInnerTextInstruction extends JSInstruction {
 
-	public static final String NAME = "getElementInnerHTML";
+	public static final String NAME = "getElementInnerText";
 
 	public GetElementInnerTextInstruction() {
 		super(NAME);

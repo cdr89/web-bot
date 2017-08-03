@@ -14,6 +14,7 @@ import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.AssignableInstruction;
 import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
+import it.caldesi.webbot.model.annotations.NoDelayInstruction;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import it.caldesi.webbot.model.annotations.UIInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
@@ -32,6 +33,7 @@ public class Context {
 	// fields
 	private static Set<Class<?>> hasNoArgument = new HashSet<>();
 	private static Set<Class<?>> hasNoTarget = new HashSet<>();
+	private static Set<Class<?>> hasNoDelay = new HashSet<>();
 	private static Set<Class<?>> assignable = new HashSet<>();
 	private static Set<Class<?>> uiInstructions = new HashSet<>();
 	private static Map<String, Type> argumentTypes = new HashMap<>();
@@ -66,6 +68,8 @@ public class Context {
 					}
 					if (c.isAnnotationPresent(NoTargetInstruction.class))
 						hasNoTarget.add(c);
+					if (c.isAnnotationPresent(NoDelayInstruction.class))
+						hasNoDelay.add(c);
 					if (c.isAnnotationPresent(AssignableInstruction.class))
 						assignable.add(c);
 					if (c.isAnnotationPresent(UIInstruction.class))
@@ -87,6 +91,10 @@ public class Context {
 		return hasNoTarget.contains(instrClass);
 	}
 
+	public static boolean hasNoDelay(Class<?> instrClass) {
+		return hasNoDelay.contains(instrClass);
+	}
+
 	public static boolean isAssignable(Class<?> instrClass) {
 		return assignable.contains(instrClass);
 	}
@@ -99,6 +107,11 @@ public class Context {
 	public static boolean hasNoTarget(String actionName) {
 		Class<?> instrClass = getInstructionByType(actionName);
 		return hasNoTarget.contains(instrClass);
+	}
+
+	public static boolean hasNoDelay(String actionName) {
+		Class<?> instrClass = getInstructionByType(actionName);
+		return hasNoDelay.contains(instrClass);
 	}
 
 	public static boolean isAssignable(String actionName) {
