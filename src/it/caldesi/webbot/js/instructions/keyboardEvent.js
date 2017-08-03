@@ -1,8 +1,8 @@
 var string = $#value#$; 
 
 for (var i = 0, len = string.length; i < len; i++) {
-	alert(string.charCodeAt(i));
-	alert(string.charAt(i));
+	// alert(string.charCodeAt(i));
+	// alert(string.charAt(i));
 	var keyboardEvent = document.createEvent("KeyboardEvent");
 	var initMethod = typeof keyboardEvent.initKeyboardEvent !== 'undefined' ? "initKeyboardEvent" : "initKeyEvent";
 	keyboardEvent[initMethod](
