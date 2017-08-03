@@ -33,6 +33,8 @@
 		<TreeTableView fx:id="scriptTreeTable" prefHeight="600.0"
 			prefWidth="500.0" BorderPane.alignment="CENTER">
 			<columns>
+				<TreeTableColumn fx:id="treeColDisabled" prefWidth="80.0"
+					text="%scene.record.scriptList.col.disabled" />
 				<TreeTableColumn fx:id="treeColLabel" prefWidth="100.0"
 					text="%scene.record.scriptList.col.label" />
 				<TreeTableColumn fx:id="treeColVariable" prefWidth="100.0"

@@ -14,6 +14,7 @@ public abstract class Instruction<T> {
 	protected String target;
 	protected String arg;
 	protected long delay;
+	protected boolean disabled;
 
 	public Instruction() {
 	}
@@ -69,6 +70,14 @@ public abstract class Instruction<T> {
 
 	public void setDelay(long delay) {
 		this.delay = delay;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 	public abstract T execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException;

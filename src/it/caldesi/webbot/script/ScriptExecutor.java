@@ -217,10 +217,15 @@ public class ScriptExecutor implements Runnable {
 				execSemaphore.acquire();
 				currentInstruction = nextInstruction();
 				Instruction<?> instruction = currentInstruction.getValue();
+				// waitFor(instruction.getDelay());
+				if (instruction.isDisabled()) {
+					disable(currentInstruction);
+					execSemaphore.release();
+					continue;
+				}
+
 				executing(currentInstruction);
 				execSemaphore.release();
-
-				// waitFor(instruction.getDelay());
 
 				if (instruction instanceof Block) {
 					currentInstruction.setExpanded(true);
@@ -350,11 +355,31 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private void failed(TreeItem<Instruction<?>> instr) {
+	private void disable(final TreeItem<Instruction<?>> instr) {
+		disable(instr, false);
+	}
+
+	private void disable(final TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
+		try {
+			if (!forced)
+				graphicChangeSemaphore.acquire();
+			Runnable changeGrapics = () -> {
+				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREY)));
+				waitFor(SET_GRAPHIC_DELAY);
+				if (!forced)
+					graphicChangeSemaphore.release();
+			};
+			Platform.runLater(changeGrapics);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void failed(final TreeItem<Instruction<?>> instr) {
 		failed(instr, false);
 	}
 
-	private void failed(TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
+	private void failed(final TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
 		failed = true;
 		try {
 			if (!forced)
@@ -371,11 +396,11 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private void success(TreeItem<Instruction<?>> instr) {
+	private void success(final TreeItem<Instruction<?>> instr) {
 		success(instr, false);
 	}
 
-	private void success(TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
+	private void success(final TreeItem<Instruction<?>> currentInstruction2, boolean forced) {
 		try {
 			if (!forced)
 				graphicChangeSemaphore.acquire();
@@ -391,7 +416,7 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private void executing(TreeItem<Instruction<?>> currentInstruction2) {
+	private void executing(final TreeItem<Instruction<?>> currentInstruction2) {
 		try {
 			graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {

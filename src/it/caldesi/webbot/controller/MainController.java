@@ -26,6 +26,7 @@ import it.caldesi.webbot.utils.Utils;
 import it.caldesi.webbot.utils.XMLUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -35,6 +36,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -46,9 +48,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableRow;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.control.cell.CheckBoxTreeTableCell;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
@@ -62,6 +66,7 @@ import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.Duration;
 
 public class MainController implements Initializable {
@@ -75,6 +80,8 @@ public class MainController implements Initializable {
 	@FXML
 	public TreeTableView<Instruction<?>> scriptTreeTable;
 
+	@FXML
+	private TreeTableColumn<Instruction<?>, Boolean> treeColDisabled;
 	@FXML
 	private TreeTableColumn<Instruction<?>, String> treeColLabel;
 	@FXML
@@ -127,6 +134,32 @@ public class MainController implements Initializable {
 		scriptTreeTable.setPlaceholder((new Label(recordBundle.getString("scene.record.emptyScriptList"))));
 
 		// Column mapping
+		treeColDisabled.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Instruction<?>, Boolean>, //
+		ObservableValue<Boolean>>() {
+			@Override
+			public ObservableValue<Boolean> call(TreeTableColumn.CellDataFeatures<Instruction<?>, Boolean> param) {
+				TreeItem<Instruction<?>> treeItem = param.getValue();
+				Instruction<?> instruction = treeItem.getValue();
+				SimpleBooleanProperty booleanProp = new SimpleBooleanProperty(instruction.isDisabled());
+				booleanProp.addListener(new ChangeListener<Boolean>() {
+					@Override
+					public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+							Boolean newValue) {
+						instruction.setDisabled(newValue);
+					}
+				});
+				return booleanProp;
+			}
+		});
+		treeColDisabled.setCellFactory(
+				new Callback<TreeTableColumn<Instruction<?>, Boolean>, TreeTableCell<Instruction<?>, Boolean>>() {
+					@Override
+					public TreeTableCell<Instruction<?>, Boolean> call(TreeTableColumn<Instruction<?>, Boolean> p) {
+						CheckBoxTreeTableCell<Instruction<?>, Boolean> cell = new CheckBoxTreeTableCell<Instruction<?>, Boolean>();
+						cell.setAlignment(Pos.CENTER);
+						return cell;
+					}
+				});
 		treeColLabel.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("label"));
 		treeColVariable.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("variable"));
 		treeColAction.setCellValueFactory(new TreeItemPropertyValueFactory<Instruction<?>, String>("actionName"));

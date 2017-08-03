@@ -56,6 +56,7 @@ public class UIUtils {
 		public static final String GREEN = "#68C953";
 		public static final String RED = "#CF3E3E";
 		public static final String YELLOW = "#EDAD18";
+		public static final String GREY = "#DDDDDD";
 	}
 	
 	public static void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {

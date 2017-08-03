@@ -23,6 +23,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -32,6 +33,8 @@ import javafx.util.converter.IntegerStringConverter;
 
 public class PopupActionEditController implements Initializable {
 
+	@FXML
+	CheckBox disabledField;
 	@FXML
 	TextField targetField;
 	@FXML
@@ -176,6 +179,7 @@ public class PopupActionEditController implements Initializable {
 		this.instructionItem = instructionItem;
 		Instruction<?> instruction = instructionItem.getValue();
 
+		disabledField.setSelected(instruction.isDisabled());
 		actionCombobox.setValue(instruction.getActionName());
 		targetField.setText(instruction.getTarget());
 		labelField.setText(instruction.getLabel());
@@ -191,6 +195,7 @@ public class PopupActionEditController implements Initializable {
 	private Instruction<?> buildInstruction() {
 		String actionName = actionCombobox.getSelectionModel().getSelectedItem();
 		Instruction<?> instruction = Instruction.Builder.buildByName(actionName);
+		instruction.setDisabled(disabledField.isSelected());
 		if (!Context.hasNoTarget(actionName))
 			instruction.setTarget(targetField.getText());
 		instruction.setLabel(labelField.getText());
