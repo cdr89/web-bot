@@ -67,6 +67,7 @@ import javafx.util.Duration;
 public class MainController implements Initializable {
 
 	public final static int GLOBAL_DELAY = 200;
+	public final static String USER_AGENT_STRING = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36";
 
 	@FXML
 	public WebView webView;
@@ -153,6 +154,10 @@ public class MainController implements Initializable {
 	public void initWebView(ResourceBundle recordBundle) {
 		System.out.println("INIT WebView");
 		webEngine = webView.getEngine();
+		// TODO set user agent
+		// System.out.println("USER AGENT: " + webEngine.getUserAgent());
+		// webEngine.setUserAgent(USER_AGENT_STRING);
+		// System.out.println("USER AGENT SET ON: " + webEngine.getUserAgent());
 
 		webEngine.setOnAlert((WebEvent<String> wEvent) -> {
 			System.out.println("JS alert() message: " + wEvent.getData());
