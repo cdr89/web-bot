@@ -1,4 +1,4 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.js;
 
 public class EventKeyPressInstruction extends EventKeyboardInstruction {
 

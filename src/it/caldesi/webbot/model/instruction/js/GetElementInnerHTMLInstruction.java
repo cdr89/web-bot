@@ -1,4 +1,4 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.js;
 
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
@@ -9,11 +9,11 @@ import javafx.scene.web.WebView;
 
 @NoArgumentInstruction
 @AssignableInstruction
-public class GetElementValueInstruction extends JSInstruction {
+public class GetElementInnerHTMLInstruction extends JSInstruction {
 
-	public static final String NAME = "getElementValue";
+	public static final String NAME = "getElementInnerHTML";
 
-	public GetElementValueInstruction() {
+	public GetElementInnerHTMLInstruction() {
 		super(NAME);
 	}
 

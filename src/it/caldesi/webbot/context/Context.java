@@ -40,7 +40,7 @@ public class Context {
 	private static Set<String> onlyPositiveIntegerArgument = new HashSet<>();
 
 	private static String[] PACKAGES_INSTRUCTION = { "it.caldesi.webbot.model.instruction",
-			"it.caldesi.webbot.model.instruction.block" };
+			"it.caldesi.webbot.model.instruction.js", "it.caldesi.webbot.model.instruction.block" };
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
 
 	public static void loadContext() throws Exception {

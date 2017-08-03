@@ -10,9 +10,9 @@ import org.w3c.dom.events.Event;
 
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
-import it.caldesi.webbot.model.instruction.ClickInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
+import it.caldesi.webbot.model.instruction.js.ClickInstruction;
 import it.caldesi.webbot.utils.UIUtils;
 import it.caldesi.webbot.utils.XMLUtils;
 import javafx.beans.value.ChangeListener;

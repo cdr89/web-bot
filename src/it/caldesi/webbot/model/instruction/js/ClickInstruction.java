@@ -1,4 +1,4 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.js;
 
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 

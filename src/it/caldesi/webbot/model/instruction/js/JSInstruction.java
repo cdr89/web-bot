@@ -1,4 +1,4 @@
-package it.caldesi.webbot.model.instruction;
+package it.caldesi.webbot.model.instruction.js;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -8,6 +8,7 @@ import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
+import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.annotations.UIInstruction;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
