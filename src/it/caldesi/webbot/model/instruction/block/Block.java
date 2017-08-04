@@ -17,6 +17,6 @@ public abstract class Block extends Instruction<Void> {
 		super(name);
 	}
 
-	 public List<Instruction<?>> block = new LinkedList<>();
+	 public List<Instruction<?>> children = new LinkedList<>();
 
 }

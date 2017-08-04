@@ -10,6 +10,13 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.model.instruction.block.Block;
+import it.caldesi.webbot.model.instruction.block.RootBlock;
+import javafx.scene.control.TreeItem;
+
 public class Utils {
 
 	public static String adjustUrl(String url) {
@@ -124,6 +131,54 @@ public class Utils {
 		}
 
 		throw new IllegalArgumentException();
+	}
+
+	public static void saveScript(TreeItem<Instruction<?>> rootItem, File file) throws Exception {
+		setBlockChildrenFromItem(rootItem);
+
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enableDefaultTyping();
+
+		System.out.println(mapper.writeValueAsString(rootItem.getValue()));
+		mapper.writeValue(file, rootItem.getValue());
+	}
+
+	private static void setBlockChildrenFromItem(TreeItem<Instruction<?>> rootItem) {
+		Instruction<?> instr = rootItem.getValue();
+		if (instr instanceof Block) {
+			Block block = (Block) instr;
+			for (TreeItem<Instruction<?>> child : rootItem.getChildren()) {
+				Instruction<?> childInstr = child.getValue();
+				block.children.add(childInstr);
+				if (childInstr instanceof Block)
+					setBlockChildrenFromItem(child);
+			}
+		}
+	}
+
+	public static TreeItem<Instruction<?>> loadScript(File file) throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enableDefaultTyping();
+
+		RootBlock rootBlock = mapper.readValue(file, RootBlock.class);
+		TreeItem<Instruction<?>> rootItem = new TreeItem<Instruction<?>>(rootBlock);
+
+		setBlockChildrenFromBlock(rootItem);
+
+		return rootItem;
+	}
+
+	private static void setBlockChildrenFromBlock(TreeItem<Instruction<?>> rootItem) {
+		Instruction<?> instr = rootItem.getValue();
+		if (instr instanceof Block) {
+			Block block = (Block) instr;
+			for (Instruction<?> child : block.children) {
+				TreeItem<Instruction<?>> childItem = new TreeItem<Instruction<?>>(child);
+				rootItem.getChildren().add(childItem);
+				if (child instanceof Block)
+					setBlockChildrenFromBlock(childItem);
+			}
+		}
 	}
 
 }

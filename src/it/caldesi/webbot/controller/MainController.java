@@ -1,6 +1,8 @@
 package it.caldesi.webbot.controller;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -46,6 +48,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
@@ -61,11 +64,15 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
 import javafx.scene.web.WebView;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -396,11 +403,90 @@ public class MainController implements Initializable {
 	}
 
 	public void saveScript() {
-		// TODO
+		FileChooser fileChooser = new FileChooser();
+
+		// Set extension filter
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("WebBot files (*.wbt)", "*.wbt");
+		fileChooser.getExtensionFilters().add(extFilter);
+
+		// Show save file dialog
+		Window window = webView.getParent().getScene().getWindow();
+		File file = fileChooser.showSaveDialog(window);
+
+		if (file == null)
+			return;
+
+		try {
+			TreeItem<Instruction<?>> root = scriptTreeTable.getRoot();
+			Utils.saveScript(root, file);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Save");
+			alert.setHeaderText("Cannot save the file");
+			alert.setContentText("Cannot save the file " + file.getAbsolutePath());
+
+			GridPane expContent = setAlertExceptionField(e);
+			alert.getDialogPane().setExpandableContent(expContent);
+
+			alert.showAndWait();
+		}
 	}
 
 	public void loadScript() {
-		// TODO
+		FileChooser fileChooser = new FileChooser();
+
+		// Set extension filter
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("WebBot files (*.wbt)", "*.wbt");
+		fileChooser.getExtensionFilters().add(extFilter);
+
+		// Show save file dialog
+		Window window = webView.getParent().getScene().getWindow();
+		File file = fileChooser.showOpenDialog(window);
+
+		if (file == null)
+			return;
+
+		try {
+			TreeItem<Instruction<?>> loadedScript = Utils.loadScript(file);
+			scriptTreeTable.setRoot(loadedScript);
+		} catch (Exception e) {
+			e.printStackTrace();
+			Alert alert = new Alert(AlertType.ERROR);
+			alert.setTitle("Load");
+			alert.setHeaderText("Cannot load the file");
+			alert.setContentText("Cannot load the file " + file.getAbsolutePath());
+
+			GridPane expContent = setAlertExceptionField(e);
+			alert.getDialogPane().setExpandableContent(expContent);
+
+			alert.showAndWait();
+		}
+	}
+
+	public GridPane setAlertExceptionField(Exception e) {
+		// Create expandable Exception.
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		String exceptionText = sw.toString();
+
+		Label label = new Label("The exception stacktrace was:");
+
+		TextArea textArea = new TextArea(exceptionText);
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+		GridPane expContent = new GridPane();
+		expContent.setMaxWidth(Double.MAX_VALUE);
+		expContent.add(label, 0, 0);
+		expContent.add(textArea, 0, 1);
+		return expContent;
 	}
 
 	private void mouseListener(MouseEvent mouseEvent) {
