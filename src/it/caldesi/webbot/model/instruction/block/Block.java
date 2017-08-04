@@ -1,5 +1,8 @@
 package it.caldesi.webbot.model.instruction.block;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import it.caldesi.webbot.model.annotations.NoDelayInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 
@@ -14,6 +17,6 @@ public abstract class Block extends Instruction<Void> {
 		super(name);
 	}
 
-	// protected List<Instruction<?>> block = new LinkedList<>();
+	 public List<Instruction<?>> block = new LinkedList<>();
 
 }

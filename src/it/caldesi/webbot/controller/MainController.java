@@ -96,13 +96,18 @@ public class MainController implements Initializable {
 	private TreeTableColumn<Instruction<?>, String> treeColDelay;
 
 	@FXML
+	public TextField addressTextField;
+
+	@FXML
 	public Button goButton;
 	@FXML
 	public Button executeButton;
 	@FXML
 	public Button stopButton;
 	@FXML
-	public TextField addressTextField;
+	public Button saveButton;
+	@FXML
+	public Button loadButton;
 
 	public WebEngine webEngine;
 
@@ -355,6 +360,8 @@ public class MainController implements Initializable {
 		UIUtils.clearExecutionIndicators(rows);
 
 		executeButton.setDisable(true);
+		saveButton.setDisable(true);
+		loadButton.setDisable(true);
 		stopButton.setDisable(false);
 		goButton.setDisable(true);
 		addressTextField.setDisable(true);
@@ -386,6 +393,14 @@ public class MainController implements Initializable {
 		} else {
 			return;
 		}
+	}
+
+	public void saveScript() {
+		// TODO
+	}
+
+	public void loadScript() {
+		// TODO
 	}
 
 	private void mouseListener(MouseEvent mouseEvent) {
@@ -561,6 +576,15 @@ public class MainController implements Initializable {
 
 	protected boolean isFinishedExecution() {
 		return executionFinished;
+	}
+
+	public void enableControls() {
+		executeButton.setDisable(false);
+		stopButton.setDisable(true);
+		goButton.setDisable(false);
+		addressTextField.setDisable(false);
+		saveButton.setDisable(false);
+		loadButton.setDisable(false);
 	}
 
 }

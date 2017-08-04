@@ -173,10 +173,7 @@ public class ScriptExecutor implements Runnable {
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
 			recordController.onFinishExecution();
 			System.out.println("Enabling controls");
-			recordController.executeButton.setDisable(false);
-			recordController.stopButton.setDisable(true);
-			recordController.goButton.setDisable(false);
-			recordController.addressTextField.setDisable(false);
+			recordController.enableControls();
 			if (!forced && execSemaphore.availablePermits() == 0 && acquired)
 				execSemaphore.release();
 		};

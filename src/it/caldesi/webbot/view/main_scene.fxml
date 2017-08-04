@@ -22,6 +22,11 @@
 					onAction="#executeScript" text="%scene.record.topbar.address.executeButton" />
 				<Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopScript"
 					disable="true" text="%scene.record.topbar.address.stopButton" />
+
+				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveScript"
+					text="%scene.record.topbar.address.saveButton" />
+				<Button fx:id="loadButton" mnemonicParsing="false" onAction="#loadScript"
+					text="%scene.record.topbar.address.loadButton" />
 			</children>
 		</HBox>
 	</top>
