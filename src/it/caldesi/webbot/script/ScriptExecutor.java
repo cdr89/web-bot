@@ -83,6 +83,7 @@ public class ScriptExecutor implements Runnable {
 				} else { // can go
 					if (newState == State.SUCCEEDED) {
 						recordController.onPageLoadSuccess();
+						scriptExecutionContext.setGlobalVariablesJS(recordController.webEngine);
 						if ((currentInstruction.getValue() instanceof PageInstruction))
 							success(currentInstruction);
 					} else if (newState == State.CANCELLED || newState == State.FAILED) {

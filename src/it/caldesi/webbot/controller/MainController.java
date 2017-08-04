@@ -450,6 +450,7 @@ public class MainController implements Initializable {
 		try {
 			TreeItem<Instruction<?>> loadedScript = Utils.loadScript(file);
 			scriptTreeTable.setRoot(loadedScript);
+			UIUtils.clearExecutionIndicators(loadedScript.getChildren());
 		} catch (Exception e) {
 			e.printStackTrace();
 			Alert alert = new Alert(AlertType.ERROR);

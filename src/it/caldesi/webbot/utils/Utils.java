@@ -147,6 +147,7 @@ public class Utils {
 		Instruction<?> instr = rootItem.getValue();
 		if (instr instanceof Block) {
 			Block block = (Block) instr;
+			block.children.clear();
 			for (TreeItem<Instruction<?>> child : rootItem.getChildren()) {
 				Instruction<?> childInstr = child.getValue();
 				block.children.add(childInstr);

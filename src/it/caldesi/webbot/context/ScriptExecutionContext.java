@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.caldesi.webbot.model.instruction.block.ForTimesBlock;
+import javafx.scene.web.WebEngine;
 
 public class ScriptExecutionContext {
 
@@ -22,6 +23,12 @@ public class ScriptExecutionContext {
 			return null;
 		else {
 			return type.cast(value);
+		}
+	}
+
+	public void setGlobalVariablesJS(WebEngine webEngine) {
+		for (Map.Entry<String, Object> var : variableValues.entrySet()) {
+			webEngine.executeScript("var " + var.getKey() + " = \"" + var.getValue() + "\";");
 		}
 	}
 
