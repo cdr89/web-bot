@@ -13,6 +13,11 @@
 	<top>
 		<HBox prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
 			<children>
+				<Button fx:id="backButton" mnemonicParsing="false" onAction="#historyBack"
+					text="%scene.record.topbar.address.backButton" />
+				<Button fx:id="forwardButton" mnemonicParsing="false"
+					onAction="#historyForward" text="%scene.record.topbar.address.forwardButton" />
+
 				<Label text="%scene.record.topbar.address.label" />
 				<TextField fx:id="addressTextField" onAction="#goToAddress"
 					prefHeight="25.0" prefWidth="470.0" />

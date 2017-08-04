@@ -68,6 +68,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebEvent;
+import javafx.scene.web.WebHistory;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -672,6 +673,24 @@ public class MainController implements Initializable {
 		addressTextField.setDisable(false);
 		saveButton.setDisable(false);
 		loadButton.setDisable(false);
+	}
+
+	public void historyBack() {
+		final WebHistory history = webView.getEngine().getHistory();
+		try {
+			history.go(-1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void historyForward() {
+		final WebHistory history = webView.getEngine().getHistory();
+		try {
+			history.go(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
