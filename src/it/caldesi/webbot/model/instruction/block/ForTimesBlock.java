@@ -1,15 +1,17 @@
 package it.caldesi.webbot.model.instruction.block;
 
+import it.caldesi.webbot.context.ScriptExecutionContext;
+import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
+import it.caldesi.webbot.model.instruction.Instruction;
+import it.caldesi.webbot.script.ScriptExecutor;
+import javafx.scene.control.TreeItem;
 
 @ArgumentType(type = Type.INTEGER)
-public class ForTimesBlock extends EvaluableBlock {
+public class ForTimesBlock extends ForBlock {
 
 	public static final String NAME = "forTimes";
-
-	static int instanceIdCounter = 0;
-	protected int instanceId;
 
 	public ForTimesBlock() {
 		super(NAME);
@@ -17,24 +19,26 @@ public class ForTimesBlock extends EvaluableBlock {
 	}
 
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + instanceId;
-		return result;
-	}
+	public boolean canContinue(ScriptExecutor scriptExecutor, TreeItem<Instruction<?>> currentInstruction)
+			throws GenericException {
+		ScriptExecutionContext scriptExecutionContext = scriptExecutor.getContext();
+		Integer execCount = scriptExecutionContext.forCounters.get(this);
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+		if (execCount == null) {
+			int count = Integer.parseInt(getArg());
+			scriptExecutionContext.forCounters.put(this, count);
+			execCount = count;
+		}
+
+		if (execCount == 0)
 			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ForTimesBlock other = (ForTimesBlock) obj;
-		if (instanceId != other.instanceId)
-			return false;
+
+		if (execCount > 0) {
+			scriptExecutionContext.forCounters.put(this, execCount - 1);
+			scriptExecutor.addInstructionToExecute(currentInstruction);
+			scriptExecutor.addInstructionsToExecute(currentInstruction.getChildren());
+		}
+
 		return true;
 	}
 

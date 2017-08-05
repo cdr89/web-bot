@@ -131,6 +131,8 @@ public class PopupActionEditController implements Initializable {
 				argField.setTextFormatter(null);
 				break;
 			}
+		} else {
+			argField.setTextFormatter(null);
 		}
 	}
 

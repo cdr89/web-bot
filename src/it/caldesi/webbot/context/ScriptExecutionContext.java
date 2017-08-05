@@ -3,13 +3,13 @@ package it.caldesi.webbot.context;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.caldesi.webbot.model.instruction.block.ForTimesBlock;
+import it.caldesi.webbot.model.instruction.block.ForBlock;
 import javafx.scene.web.WebEngine;
 
 public class ScriptExecutionContext {
 
 	public Map<String, Object> variableValues = new HashMap<>();
-	public Map<ForTimesBlock, Integer> forTimesCounters = new HashMap<>();
+	public Map<ForBlock, Integer> forCounters = new HashMap<>();
 
 	public <T> T resolveVariableValue(String variableName, Class<T> type) {
 		if (variableName == null || variableName.trim().isEmpty())

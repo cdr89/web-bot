@@ -8,14 +8,10 @@ import java.util.concurrent.TimeUnit;
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.controller.MainController;
-import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.exception.StopExecutionException;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.PageInstruction;
 import it.caldesi.webbot.model.instruction.block.Block;
-import it.caldesi.webbot.model.instruction.block.ForTimesBlock;
-import it.caldesi.webbot.model.instruction.block.IfBlock;
-import it.caldesi.webbot.model.instruction.block.WhileBlock;
 import it.caldesi.webbot.utils.UIUtils;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -110,7 +106,7 @@ public class ScriptExecutor implements Runnable {
 		recordController.webEngine.getLoadWorker().stateProperty().addListener(playListener);
 	}
 
-	private void addInstructionsToExecute(List<TreeItem<Instruction<?>>> instructions) {
+	public void addInstructionsToExecute(List<TreeItem<Instruction<?>>> instructions) {
 		if (instructions == null)
 			return;
 
@@ -119,7 +115,7 @@ public class ScriptExecutor implements Runnable {
 		}
 	}
 
-	private void addInstructionToExecute(TreeItem<Instruction<?>> currentInstruction2) {
+	public void addInstructionToExecute(TreeItem<Instruction<?>> currentInstruction2) {
 		if (currentInstruction2 == null)
 			return;
 
@@ -215,7 +211,6 @@ public class ScriptExecutor implements Runnable {
 				execSemaphore.acquire();
 				currentInstruction = nextInstruction();
 				Instruction<?> instruction = currentInstruction.getValue();
-				// waitFor(instruction.getDelay());
 				if (instruction.isDisabled()) {
 					disable(currentInstruction);
 					execSemaphore.release();
@@ -227,54 +222,21 @@ public class ScriptExecutor implements Runnable {
 
 				if (instruction instanceof Block) {
 					currentInstruction.setExpanded(true);
+					Block block = (Block) instruction;
 
-					if (instruction instanceof IfBlock) {
-						IfBlock ifBlock = (IfBlock) instruction;
-						try {
-							if (ifBlock.evaluateCondition(scriptExecutionContext))
-								addInstructionsToExecute(currentInstruction.getChildren());
+					try {
+						if (block.canContinue(this, currentInstruction)) {
 							success(currentInstruction);
-						} catch (GenericException e) {
-							failed = true;
-							failed(currentInstruction);
-							onFinish();
-							e.printStackTrace();
-							break;
-						}
-						continue;
-					} else if (instruction instanceof WhileBlock) {
-						WhileBlock whileBlock = (WhileBlock) instruction;
-						try {
-							if (whileBlock.evaluateCondition(scriptExecutionContext)) {
-								addInstructionToExecute(currentInstruction);
-								addInstructionsToExecute(currentInstruction.getChildren());
-							}
-							success(currentInstruction);
-						} catch (GenericException e) {
-							failed = true;
-							failed(currentInstruction);
-							onFinish();
-							e.printStackTrace();
-							break;
-						}
-						continue;
-					} else if (instruction instanceof ForTimesBlock) {
-						ForTimesBlock forTimesBlock = (ForTimesBlock) instruction;
-						success(currentInstruction);
-						Integer execCount = scriptExecutionContext.forTimesCounters.get(forTimesBlock);
-						if (execCount == null) {
-							int count = Integer.parseInt(forTimesBlock.getArg());
-							scriptExecutionContext.forTimesCounters.put(forTimesBlock, count);
-							execCount = count;
-						}
-						if (execCount == 0)
 							continue;
-						if (execCount > 0) {
-							scriptExecutionContext.forTimesCounters.put(forTimesBlock, execCount - 1);
-							addInstructionToExecute(currentInstruction);
-							addInstructionsToExecute(currentInstruction.getChildren());
+						} else {
+							break;
 						}
-						continue;
+					} catch (Exception e) {
+						failed = true;
+						failed(currentInstruction);
+						onFinish();
+						e.printStackTrace();
+						break;
 					}
 				}
 
@@ -444,6 +406,10 @@ public class ScriptExecutor implements Runnable {
 
 	public void forcedStop() {
 		forcedStop(false);
+	}
+
+	public ScriptExecutionContext getContext() {
+		return scriptExecutionContext;
 	}
 
 }
