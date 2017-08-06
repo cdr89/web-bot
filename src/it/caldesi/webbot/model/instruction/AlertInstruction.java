@@ -1,6 +1,7 @@
 package it.caldesi.webbot.model.instruction;
 
 import it.caldesi.webbot.context.ScriptExecutionContext;
+import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
 import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
@@ -26,7 +27,14 @@ public class AlertInstruction extends Instruction<Void> {
 		Alert alert = new Alert(AlertType.INFORMATION);
 		alert.setTitle("Alert");
 		alert.setHeaderText(null);
-		alert.setContentText(arg);
+		if (arg != null && !arg.trim().isEmpty()) {
+			if (arg.startsWith("$")) // variable
+				alert.setContentText(scriptExecutionContext.variableValues.get(arg.substring(1)).toString());
+			else
+				alert.setContentText(arg);
+		} else {
+			throw new ArgumentRequiredException();
+		}
 		alert.showAndWait();
 
 		return null;
