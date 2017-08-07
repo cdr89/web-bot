@@ -21,6 +21,7 @@ import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.RootBlock;
 import it.caldesi.webbot.script.ScriptExecutor;
+import it.caldesi.webbot.ui.RetentionFileChooser;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
 import it.caldesi.webbot.utils.UIUtils;
@@ -404,11 +405,8 @@ public class MainController implements Initializable {
 	}
 
 	public void saveScript() {
-		FileChooser fileChooser = new FileChooser();
-
-		// Set extension filter
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("WebBot files (*.wbt)", "*.wbt");
-		fileChooser.getExtensionFilters().add(extFilter);
+		RetentionFileChooser fileChooser = new RetentionFileChooser(extFilter);
 
 		// Show save file dialog
 		Window window = webView.getParent().getScene().getWindow();
@@ -435,11 +433,8 @@ public class MainController implements Initializable {
 	}
 
 	public void loadScript() {
-		FileChooser fileChooser = new FileChooser();
-
-		// Set extension filter
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("WebBot files (*.wbt)", "*.wbt");
-		fileChooser.getExtensionFilters().add(extFilter);
+		RetentionFileChooser fileChooser = new RetentionFileChooser(extFilter);
 
 		// Show save file dialog
 		Window window = webView.getParent().getScene().getWindow();
