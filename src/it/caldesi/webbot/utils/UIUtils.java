@@ -2,6 +2,7 @@ package it.caldesi.webbot.utils;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 import javax.imageio.ImageIO;
@@ -11,6 +12,8 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.WritableImage;
@@ -89,6 +92,24 @@ public class UIUtils {
 		});
 
 		popUpStage.showAndWait();
+	}
+
+	public static Optional<ButtonType> centerAndShowPopupStage(Stage primaryStage, Alert alert) {
+		// Calculate the center position of the parent Stage
+		double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2d;
+		double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2d;
+
+		// Hide the pop-up stage before it is shown and becomes relocated
+		// alert.setOnShowing(ev -> alert.hide());
+
+		// Relocate the pop-up Stage
+		alert.setOnShown(ev -> {
+			alert.setX(centerXPosition - alert.getWidth() / 2d);
+			alert.setY(centerYPosition - alert.getHeight() / 2d);
+			alert.show();
+		});
+
+		return alert.showAndWait();
 	}
 
 }

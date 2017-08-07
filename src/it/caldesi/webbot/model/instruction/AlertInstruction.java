@@ -1,5 +1,6 @@
 package it.caldesi.webbot.model.instruction;
 
+import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
@@ -7,6 +8,7 @@ import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import it.caldesi.webbot.model.annotations.UIInstruction;
+import it.caldesi.webbot.utils.UIUtils;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.web.WebView;
@@ -35,7 +37,7 @@ public class AlertInstruction extends Instruction<Void> {
 		} else {
 			throw new ArgumentRequiredException();
 		}
-		alert.showAndWait();
+		UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
 
 		return null;
 	}

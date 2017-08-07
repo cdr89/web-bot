@@ -361,7 +361,7 @@ public class MainController implements Initializable {
 			alert.setTitle(resources.getString("scene.record.alert.emptyScript.title"));
 			alert.setHeaderText(resources.getString("scene.record.alert.emptyScript.header"));
 			alert.setContentText(resources.getString("scene.record.alert.emptyScript.content"));
-			alert.showAndWait();
+			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
 			return;
 		}
 
@@ -390,7 +390,7 @@ public class MainController implements Initializable {
 		alert.setHeaderText(resources.getString("scene.record.alert.stop.header"));
 		alert.setContentText(resources.getString("scene.record.alert.stop.content"));
 
-		Optional<ButtonType> result = alert.showAndWait();
+		Optional<ButtonType> result = UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
 		if (result.get() == ButtonType.OK) {
 			if (scriptExecutor != null && scriptExecutorThread != null) {
 				if (scriptExecutorThread.isAlive()) {
@@ -429,7 +429,7 @@ public class MainController implements Initializable {
 			GridPane expContent = setAlertExceptionField(e);
 			alert.getDialogPane().setExpandableContent(expContent);
 
-			alert.showAndWait();
+			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
 		}
 	}
 
@@ -458,7 +458,7 @@ public class MainController implements Initializable {
 			GridPane expContent = setAlertExceptionField(e);
 			alert.getDialogPane().setExpandableContent(expContent);
 
-			alert.showAndWait();
+			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
 		}
 	}
 
