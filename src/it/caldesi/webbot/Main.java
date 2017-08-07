@@ -15,7 +15,7 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
-			Context.loadContext();
+			Context.loadContext(primaryStage);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}

@@ -16,6 +16,7 @@ import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
+import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
@@ -304,7 +305,7 @@ public class MainController implements Initializable {
 				}
 			});
 
-			stage.show();
+			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), stage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -324,7 +325,7 @@ public class MainController implements Initializable {
 			PopupActionEditController controller = loader.<PopupActionEditController> getController();
 			controller.initActionData(instruction);
 
-			stage.show();
+			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), stage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

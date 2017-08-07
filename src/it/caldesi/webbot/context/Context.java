@@ -21,6 +21,7 @@ import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.utils.Utils;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.Stage;
 
 public class Context {
 
@@ -43,7 +44,10 @@ public class Context {
 			"it.caldesi.webbot.model.instruction.js", "it.caldesi.webbot.model.instruction.block" };
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
 
-	public static void loadContext() throws Exception {
+	private static Stage primaryStage;
+
+	public static void loadContext(Stage primaryStage) throws Exception {
+		Context.primaryStage = primaryStage;
 		for (String pack : PACKAGES_INSTRUCTION) {
 			instructionClassList.addAll(Utils.getClassesForPackage(pack, false));
 		}
@@ -151,6 +155,10 @@ public class Context {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	public static Stage getPrimaryStage() {
+		return primaryStage;
 	}
 
 }

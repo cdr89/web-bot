@@ -11,8 +11,8 @@ import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.scene.Node;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TextFormatter.Change;
+import javafx.scene.control.TreeItem;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
@@ -58,7 +58,7 @@ public class UIUtils {
 		public static final String YELLOW = "#EDAD18";
 		public static final String GREY = "#DDDDDD";
 	}
-	
+
 	public static void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {
 		if (rows == null)
 			return;
@@ -71,6 +71,24 @@ public class UIUtils {
 
 	public static void clearInstructionIndicator(TreeItem<Instruction<?>> row) {
 		row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
+	}
+
+	public static void centerAndShowPopupStage(Stage primaryStage, Stage popUpStage) {
+		// Calculate the center position of the parent Stage
+		double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2d;
+		double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2d;
+
+		// Hide the pop-up stage before it is shown and becomes relocated
+		popUpStage.setOnShowing(ev -> popUpStage.hide());
+
+		// Relocate the pop-up Stage
+		popUpStage.setOnShown(ev -> {
+			popUpStage.setX(centerXPosition - popUpStage.getWidth() / 2d);
+			popUpStage.setY(centerYPosition - popUpStage.getHeight() / 2d);
+			popUpStage.show();
+		});
+
+		popUpStage.showAndWait();
 	}
 
 }
