@@ -230,6 +230,7 @@ public class MainController implements Initializable {
 
 					clickElementListener = new EventListener() {
 						public void handleEvent(Event ev) {
+							System.out.println("event: " + ev.getType());
 							// remove highlight
 							webView.getEngine().executeScript(removeHighlightJS);
 
@@ -251,7 +252,7 @@ public class MainController implements Initializable {
 
 					Document doc = webEngine.getDocument();
 					Element el = doc.getDocumentElement();
-					((EventTarget) el).addEventListener("click", clickElementListener, false);
+					((EventTarget) el).addEventListener("click", clickElementListener, true);
 				}
 			}
 		});
@@ -651,8 +652,8 @@ public class MainController implements Initializable {
 			Document doc = webEngine.getDocument();
 			Element el = doc.getDocumentElement();
 
-			((EventTarget) el).removeEventListener("click", clickElementListener, false);
-			((EventTarget) el).addEventListener("click", clickElementListener, false);
+			((EventTarget) el).removeEventListener("click", clickElementListener, true);
+			((EventTarget) el).addEventListener("click", clickElementListener, true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
