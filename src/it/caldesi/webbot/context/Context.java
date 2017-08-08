@@ -12,6 +12,7 @@ import java.util.Set;
 import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.AssignableInstruction;
+import it.caldesi.webbot.model.annotations.EventInstruction;
 import it.caldesi.webbot.model.annotations.InvisibleInstruction;
 import it.caldesi.webbot.model.annotations.NoArgumentInstruction;
 import it.caldesi.webbot.model.annotations.NoDelayInstruction;
@@ -30,6 +31,7 @@ public class Context {
 
 	private static List<Class<?>> instructionClassList = new LinkedList<>();
 	private static Map<String, Class<?>> instructionByType = new HashMap<>();
+	private static Map<String, Class<?>> instructionByEventType = new HashMap<>();
 
 	// fields
 	private static Set<Class<?>> hasNoArgument = new HashSet<>();
@@ -40,8 +42,12 @@ public class Context {
 	private static Map<String, Type> argumentTypes = new HashMap<>();
 	private static Set<String> onlyPositiveIntegerArgument = new HashSet<>();
 
-	private static String[] PACKAGES_INSTRUCTION = { "it.caldesi.webbot.model.instruction",
-			"it.caldesi.webbot.model.instruction.js", "it.caldesi.webbot.model.instruction.block" };
+	private static String[] PACKAGES_INSTRUCTION = { //
+			"it.caldesi.webbot.model.instruction", //
+			"it.caldesi.webbot.model.instruction.js", //
+			"it.caldesi.webbot.model.instruction.js.event", //
+			"it.caldesi.webbot.model.instruction.block" //
+	};
 	private static String FIELD_INSTRUCTION_NAME = "NAME";
 
 	private static Stage primaryStage;
@@ -69,6 +75,12 @@ public class Context {
 								onlyPositiveIntegerArgument.add(instructionName);
 							}
 						}
+					}
+					if (c.isAnnotationPresent(EventInstruction.class)) {
+						Annotation eventInstructionAnnotation = c.getAnnotation(EventInstruction.class);
+						EventInstruction eventInstruction = (EventInstruction) eventInstructionAnnotation;
+						String eventName = eventInstruction.name();
+						instructionByEventType.put(eventName, c);
 					}
 					if (c.isAnnotationPresent(NoTargetInstruction.class))
 						hasNoTarget.add(c);
@@ -139,6 +151,10 @@ public class Context {
 		return instructionByType.get(type);
 	}
 
+	public static Class<?> getInstructionByEventType(String eventName) {
+		return instructionByEventType.get(eventName);
+	}
+
 	public static Type getArgumentType(String instructionType) {
 		return argumentTypes.get(instructionType);
 	}
@@ -152,6 +168,16 @@ public class Context {
 			return (Instruction<?>) getInstructionByType(type).newInstance();
 		} catch (Exception e) {
 			System.out.println("Cannot get instance for instruction type: " + type);
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public static Instruction<?> getInstructionInstanceByEventType(String eventName) {
+		try {
+			return (Instruction<?>) getInstructionByEventType(eventName).newInstance();
+		} catch (Exception e) {
+			System.out.println("Cannot get instruction instance from event type: " + eventName);
 			e.printStackTrace();
 		}
 		return null;

@@ -1,5 +1,6 @@
-package it.caldesi.webbot.model.instruction.js;
+package it.caldesi.webbot.model.instruction.js.event;
 
+import it.caldesi.webbot.model.instruction.js.JSInstruction;
 import javafx.scene.web.WebEngine;
 
 public abstract class EventKeyboardInstruction extends JSInstruction {
