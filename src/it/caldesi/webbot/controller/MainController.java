@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -17,6 +18,7 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 
 import it.caldesi.webbot.context.Context;
+import it.caldesi.webbot.exception.IncompatibleEventTypeException;
 import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
@@ -243,7 +245,6 @@ public class MainController implements Initializable {
 
 				System.out.println("[recordListener] -----LOCATION----->" + webEngine.getLocation());
 				System.out.println("[recordListener] State: " + ov.getValue().toString());
-				addressTextField.setText(webEngine.getLocation());
 
 				if (newState == Worker.State.SUCCEEDED) {
 					addListenersOnPageLoadSuccess();
@@ -314,6 +315,7 @@ public class MainController implements Initializable {
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				if (newState == Worker.State.SUCCEEDED) {
 					System.out.println("[baseListener]");
+					addressTextField.setText(webEngine.getLocation());
 					try {
 						webView.getEngine().executeScript(functionsJS);
 					} catch (Exception e) {
@@ -773,10 +775,16 @@ public class MainController implements Initializable {
 
 	public void createAndAddInstructionByEvent(String eventType, Event ev)
 			throws InstantiationException, IllegalAccessException {
-		Class<?> instructionClass = Context.getInstructionByEventType(eventType);
-		Instruction<?> instruction = (Instruction<?>) instructionClass.newInstance();
-		((it.caldesi.webbot.model.instruction.EventListener) instruction).setFiedsByEvent(ev);
-		appendInstructionToList(instruction);
+		List<Class<?>> instructionByEventType = Context.getInstructionByEventType(eventType);
+		for (Class<?> instructionClass : instructionByEventType) {
+			Instruction<?> instruction = (Instruction<?>) instructionClass.newInstance();
+			try {
+				((it.caldesi.webbot.model.instruction.EventListener) instruction).setFiedsByEvent(ev);
+				appendInstructionToList(instruction);
+			} catch (IncompatibleEventTypeException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 }

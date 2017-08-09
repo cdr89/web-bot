@@ -31,7 +31,7 @@ public class Context {
 
 	private static List<Class<?>> instructionClassList = new LinkedList<>();
 	private static Map<String, Class<?>> instructionByType = new HashMap<>();
-	private static Map<String, Class<?>> instructionByEventType = new HashMap<>();
+	private static Map<String, List<Class<?>>> instructionByEventType = new HashMap<>();
 
 	// fields
 	private static Set<Class<?>> hasNoArgument = new HashSet<>();
@@ -80,7 +80,12 @@ public class Context {
 						Annotation eventInstructionAnnotation = c.getAnnotation(EventInstruction.class);
 						EventInstruction eventInstruction = (EventInstruction) eventInstructionAnnotation;
 						String eventName = eventInstruction.name();
-						instructionByEventType.put(eventName, c);
+						List<Class<?>> list = instructionByEventType.get(eventName);
+						if (list == null) {
+							list = new LinkedList<>();
+							instructionByEventType.put(eventName, list);
+						}
+						list.add(c);
 					}
 					if (c.isAnnotationPresent(NoTargetInstruction.class))
 						hasNoTarget.add(c);
@@ -151,7 +156,7 @@ public class Context {
 		return instructionByType.get(type);
 	}
 
-	public static Class<?> getInstructionByEventType(String eventName) {
+	public static List<Class<?>> getInstructionByEventType(String eventName) {
 		return instructionByEventType.get(eventName);
 	}
 
@@ -173,9 +178,16 @@ public class Context {
 		return null;
 	}
 
-	public static Instruction<?> getInstructionInstanceByEventType(String eventName) {
+	public static List<Instruction<?>> getInstructionInstanceByEventType(String eventName) {
 		try {
-			return (Instruction<?>) getInstructionByEventType(eventName).newInstance();
+			List<Instruction<?>> list = new LinkedList<>();
+
+			List<Class<?>> instructionByEventTypeList = getInstructionByEventType(eventName);
+			for (Class<?> c : instructionByEventTypeList) {
+				list.add((Instruction<?>) c.newInstance());
+			}
+
+			return list;
 		} catch (Exception e) {
 			System.out.println("Cannot get instruction instance from event type: " + eventName);
 			e.printStackTrace();
