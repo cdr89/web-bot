@@ -187,4 +187,8 @@ public class Context {
 		return primaryStage;
 	}
 
+	public static Set<String> getEventTypes() {
+		return instructionByEventType.keySet();
+	}
+
 }

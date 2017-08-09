@@ -131,8 +131,9 @@ public class MainController implements Initializable {
 	private Timeline scrolltimeline = new Timeline();
 	private double scrollDirection = 0;
 
-	public ChangeListener<State> recordListener;
-	private EventListener clickElementListener;
+	public ChangeListener<State> recordListener, baseListener;
+
+	private HashMap<String, EventListener> eventListeners = new HashMap<>();
 
 	private static String functionsJS = FileUtils.readResource("/it/caldesi/webbot/js/functions.js");
 	private static String highlightJS = FileUtils.readResource("/it/caldesi/webbot/js/highlightElement.js");
@@ -147,6 +148,8 @@ public class MainController implements Initializable {
 		initWebView(resources);
 		initTreeTableView(resources);
 		initRecordMode(resources);
+		initEventListeners();
+		initBaseListener();
 	}
 
 	private void initRecordMode(ResourceBundle resourceBundle) {
@@ -226,13 +229,7 @@ public class MainController implements Initializable {
 	}
 
 	private void removeRecordListener() {
-		try {
-			Document doc = webEngine.getDocument();
-			Element el = doc.getDocumentElement();
-			((EventTarget) el).removeEventListener("click", clickElementListener, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		removeEventListeners();
 		webEngine.getLoadWorker().stateProperty().removeListener(recordListener);
 	}
 
@@ -248,12 +245,7 @@ public class MainController implements Initializable {
 				System.out.println("[recordListener] State: " + ov.getValue().toString());
 				addressTextField.setText(webEngine.getLocation());
 
-				if (newState == State.SCHEDULED) {
-					// TODO become event listener on page load
-					Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
-					instruction.setArg(webEngine.getLocation());
-					appendInstructionToList(instruction);
-				} else if (newState == Worker.State.SUCCEEDED) {
+				if (newState == Worker.State.SUCCEEDED) {
 					addListenersOnPageLoadSuccess();
 				}
 			}
@@ -261,13 +253,36 @@ public class MainController implements Initializable {
 	}
 
 	public void addListenersOnPageLoadSuccess() {
-		try {
-			webView.getEngine().executeScript(functionsJS);
-		} catch (Exception e) {
-			e.printStackTrace();
+		addEventListeners();
+	}
+
+	public void addEventListeners() {
+		for (String eventType : Context.getEventTypes()) {
+			try {
+				Document doc = webEngine.getDocument();
+				Element el = doc.getDocumentElement();
+				((EventTarget) el).addEventListener(eventType, eventListeners.get(eventType), true);
+			} catch (Exception e) {
+				System.out.println("Cannot add event listener for event: " + eventType);
+			}
 		}
-		try {
-			clickElementListener = new EventListener() {
+	}
+
+	public void removeEventListeners() {
+		for (String eventType : Context.getEventTypes()) {
+			try {
+				Document doc = webEngine.getDocument();
+				Element el = doc.getDocumentElement();
+				((EventTarget) el).removeEventListener(eventType, eventListeners.get(eventType), true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void initEventListeners() {
+		for (String eventType : Context.getEventTypes()) {
+			EventListener listener = new EventListener() {
 				public void handleEvent(Event ev) {
 					System.out.println("event: " + ev.getType());
 					try {
@@ -281,15 +296,32 @@ public class MainController implements Initializable {
 					String xPath = XMLUtils.getFullXPath(el);
 
 					highlightElement(xPath);
-					newActionPopup(ev);
+					// newActionPopup(ev);
+					try {
+						createAndAddInstructionByEvent(eventType, ev);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			};
-			Document doc = webEngine.getDocument();
-			Element el = doc.getDocumentElement();
-			((EventTarget) el).addEventListener("click", clickElementListener, true);
-		} catch (Exception e) {
-			e.printStackTrace();
+			eventListeners.put(eventType, listener);
 		}
+	}
+
+	public void initBaseListener() {
+		webEngine.getLoadWorker().stateProperty().addListener(baseListener = new ChangeListener<State>() {
+			@Override
+			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
+				if (newState == Worker.State.SUCCEEDED) {
+					System.out.println("[baseListener]");
+					try {
+						webView.getEngine().executeScript(functionsJS);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 	}
 
 	private void loadPage(String urlString) {
@@ -305,6 +337,12 @@ public class MainController implements Initializable {
 				e.printStackTrace();
 			}
 		webEngine.load(urlString);
+
+		if (recordModeSwitch.isSwitched()) {
+			Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
+			instruction.setArg(webEngine.getLocation());
+			appendInstructionToList(instruction);
+		}
 	}
 
 	private void newActionPopup(Event ev) {
@@ -731,6 +769,14 @@ public class MainController implements Initializable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void createAndAddInstructionByEvent(String eventType, Event ev)
+			throws InstantiationException, IllegalAccessException {
+		Class<?> instructionClass = Context.getInstructionByEventType(eventType);
+		Instruction<?> instruction = (Instruction<?>) instructionClass.newInstance();
+		((it.caldesi.webbot.model.instruction.EventListener) instruction).setFiedsByEvent(ev);
+		appendInstructionToList(instruction);
 	}
 
 }

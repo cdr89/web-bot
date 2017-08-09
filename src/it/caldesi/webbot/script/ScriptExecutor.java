@@ -60,7 +60,6 @@ public class ScriptExecutor implements Runnable {
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
 				System.out
 						.println("[playListener] number of execSemaphore permits: " + execSemaphore.availablePermits());
-
 				System.out.println("[playListener] -----LOCATION----->" + recordController.webEngine.getLocation());
 				System.out.println("[playListener] State: " + ov.getValue().toString());
 
