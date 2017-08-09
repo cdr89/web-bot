@@ -117,23 +117,23 @@ public class UIUtils {
 		return alert.showAndWait();
 	}
 
-	public static void setBoundsListener(Stage primaryStage) {
+	public static void setBoundsListener(Stage primaryStage, int allowedError) {
 		ChangeListener<Number> boundsListener = (obs, oldValue, newValue) -> {
 			Bounds allScreenBounds = computeAllScreenBounds();
 			double x = primaryStage.getX();
 			double y = primaryStage.getY();
 			double w = primaryStage.getWidth();
 			double h = primaryStage.getHeight();
-			if (x < allScreenBounds.getMinX()) {
+			if (x < allScreenBounds.getMinX() - allowedError) {
 				primaryStage.setX(allScreenBounds.getMinX());
 			}
-			if (x + w > allScreenBounds.getMaxX()) {
+			if (x + w > allScreenBounds.getMaxX() + allowedError) {
 				primaryStage.setX(allScreenBounds.getMaxX() - w);
 			}
-			if (y < allScreenBounds.getMinY()) {
+			if (y < allScreenBounds.getMinY() - allowedError) {
 				primaryStage.setY(allScreenBounds.getMinY());
 			}
-			if (y + h > allScreenBounds.getMaxY()) {
+			if (y + h > allScreenBounds.getMaxY() + allowedError) {
 				primaryStage.setY(allScreenBounds.getMaxY() - h);
 			}
 		};

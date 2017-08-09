@@ -6,6 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import it.caldesi.webbot.ui.*?>
 
 <BorderPane prefHeight="600.0" prefWidth="800.0"
 	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
@@ -14,24 +15,27 @@
 		<HBox prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
 			<children>
 				<Button fx:id="backButton" mnemonicParsing="false" onAction="#historyBack"
-					text="%scene.record.topbar.address.backButton" />
+					text="%scene.record.topbar.backButton" />
 				<Button fx:id="forwardButton" mnemonicParsing="false"
-					onAction="#historyForward" text="%scene.record.topbar.address.forwardButton" />
+					onAction="#historyForward" text="%scene.record.topbar.forwardButton" />
 
 				<Label text="%scene.record.topbar.address.label" />
 				<TextField fx:id="addressTextField" onAction="#goToAddress"
 					prefHeight="25.0" prefWidth="470.0" />
 				<Button fx:id="goButton" mnemonicParsing="false" onAction="#goToAddress"
-					text="%scene.record.topbar.address.goButton" />
+					text="%scene.record.topbar.goButton" />
 				<Button fx:id="executeButton" mnemonicParsing="false"
-					onAction="#executeScript" text="%scene.record.topbar.address.executeButton" />
-				<Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopScript"
-					disable="true" text="%scene.record.topbar.address.stopButton" />
+					onAction="#executeScript" text="%scene.record.topbar.executeButton" />
+				<Button fx:id="stopButton" disable="true" mnemonicParsing="false"
+					onAction="#stopScript" text="%scene.record.topbar.stopButton" />
 
 				<Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveScript"
-					text="%scene.record.topbar.address.saveButton" />
+					text="%scene.record.topbar.saveButton" />
 				<Button fx:id="loadButton" mnemonicParsing="false" onAction="#loadScript"
-					text="%scene.record.topbar.address.loadButton" />
+					text="%scene.record.topbar.loadButton" />
+
+				<Label text="%scene.record.topbar.recordMode" />
+				<SwitchButton fx:id="recordModeSwitch" />
 			</children>
 		</HBox>
 	</top>
@@ -60,4 +64,12 @@
 			</columns>
 		</TreeTableView>
 	</right>
+	<bottom>
+		<HBox prefHeight="0.0" prefWidth="800.0" BorderPane.alignment="CENTER">
+			<children>
+				<Label text="%scene.record.statusBar.mode" />
+				<Label text="%scene.record.statusBar.mode.browsing" />
+			</children>
+		</HBox>
+	</bottom>
 </BorderPane>

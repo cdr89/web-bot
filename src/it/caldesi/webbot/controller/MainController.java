@@ -23,6 +23,7 @@ import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.RootBlock;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.ui.RetentionFileChooser;
+import it.caldesi.webbot.ui.SwitchButton;
 import it.caldesi.webbot.utils.FileUtils;
 import it.caldesi.webbot.utils.JSUtils;
 import it.caldesi.webbot.utils.UIUtils;
@@ -119,6 +120,9 @@ public class MainController implements Initializable {
 	@FXML
 	public Button loadButton;
 
+	@FXML
+	public SwitchButton recordModeSwitch;
+
 	public WebEngine webEngine;
 
 	private ResourceBundle resources;
@@ -143,10 +147,20 @@ public class MainController implements Initializable {
 		this.resources = resources;
 		initWebView(resources);
 		initTreeTableView(resources);
+		initRecordMode(resources);
 	}
 
-	public void initTreeTableView(ResourceBundle recordBundle) {
-		scriptTreeTable.setPlaceholder((new Label(recordBundle.getString("scene.record.emptyScriptList"))));
+	private void initRecordMode(ResourceBundle resourceBundle) {
+		recordModeSwitch.addListener((observable, oldValue, newValue) -> {
+			if (newValue)
+				addRecordListener();
+			else
+				removeRecordListener();
+		});
+	}
+
+	private void initTreeTableView(ResourceBundle resourceBundle) {
+		scriptTreeTable.setPlaceholder((new Label(resourceBundle.getString("scene.record.emptyScriptList"))));
 
 		// Column mapping
 		treeColDisabled.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<Instruction<?>, Boolean>, //
@@ -199,7 +213,7 @@ public class MainController implements Initializable {
 		setupScrolling();
 	}
 
-	public void initWebView(ResourceBundle recordBundle) {
+	private void initWebView(ResourceBundle resourceBundle) {
 		System.out.println("INIT WebView");
 		webEngine = webView.getEngine();
 		// TODO set user agent
@@ -210,11 +224,21 @@ public class MainController implements Initializable {
 		webEngine.setOnAlert((WebEvent<String> wEvent) -> {
 			System.out.println("JS alert() message: " + wEvent.getData());
 		});
-
-		addRecordListener();
 	}
 
-	public void addRecordListener() {
+	private void removeRecordListener() {
+		try {
+			Document doc = webEngine.getDocument();
+			Element el = doc.getDocumentElement();
+			((EventTarget) el).removeEventListener("click", clickElementListener, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		webEngine.getLoadWorker().stateProperty().removeListener(recordListener);
+	}
+
+	private void addRecordListener() {
+		addListenersOnPageLoadSuccess();
 		webEngine.getLoadWorker().stateProperty().addListener(recordListener = new ChangeListener<State>() {
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
@@ -225,37 +249,56 @@ public class MainController implements Initializable {
 				System.out.println("[recordListener] State: " + ov.getValue().toString());
 				addressTextField.setText(webEngine.getLocation());
 
-				if (newState == Worker.State.SUCCEEDED) {
-					onPageLoadSuccess();
-
-					clickElementListener = new EventListener() {
-						public void handleEvent(Event ev) {
-							System.out.println("event: " + ev.getType());
-							// remove highlight
-							webView.getEngine().executeScript(removeHighlightJS);
-
-							// highlight component
-							Element el = (Element) ev.getTarget();
-							String xPath = XMLUtils.getFullXPath(el);
-
-							try {
-								Map<String, String> paramValues = new HashMap<>();
-								paramValues.put("xPath", xPath);
-								String highlightCompiled = JSUtils.loadParametrizedJS(highlightJS, paramValues);
-								webView.getEngine().executeScript(highlightCompiled);
-							} catch (Exception e) {
-								e.printStackTrace();
-							}
-							newActionPopup(ev);
-						}
-					};
-
-					Document doc = webEngine.getDocument();
-					Element el = doc.getDocumentElement();
-					((EventTarget) el).addEventListener("click", clickElementListener, true);
+				if (newState == State.SCHEDULED) {
+					// TODO become event listener on page load
+					Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
+					instruction.setArg(webEngine.getLocation());
+					appendInstructionToList(instruction);
+				} else if (newState == Worker.State.SUCCEEDED) {
+					addListenersOnPageLoadSuccess();
 				}
 			}
 		});
+	}
+
+	public void addListenersOnPageLoadSuccess() {
+		try {
+			webView.getEngine().executeScript(functionsJS);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			clickElementListener = new EventListener() {
+				public void handleEvent(Event ev) {
+					System.out.println("event: " + ev.getType());
+					try {
+						// remove highlight
+						webView.getEngine().executeScript(removeHighlightJS);
+					} catch (Exception e) {
+						// ignore it
+					}
+
+					// highlight component
+					Element el = (Element) ev.getTarget();
+					String xPath = XMLUtils.getFullXPath(el);
+
+					try {
+						Map<String, String> paramValues = new HashMap<>();
+						paramValues.put("xPath", xPath);
+						String highlightCompiled = JSUtils.loadParametrizedJS(highlightJS, paramValues);
+						webView.getEngine().executeScript(highlightCompiled);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					newActionPopup(ev);
+				}
+			};
+			Document doc = webEngine.getDocument();
+			Element el = doc.getDocumentElement();
+			((EventTarget) el).addEventListener("click", clickElementListener, true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void loadPage(String urlString) {
@@ -351,9 +394,6 @@ public class MainController implements Initializable {
 			return;
 		url = Utils.adjustUrl(url);
 		loadPage(url);
-		Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
-		instruction.setArg(url);
-		appendInstructionToList(instruction);
 	}
 
 	public void executeScript() {
@@ -369,16 +409,31 @@ public class MainController implements Initializable {
 		executionFinished = false;
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
 		UIUtils.clearExecutionIndicators(rows);
+		recordModeSwitch.switched(false);
+		disableControls();
 
+		scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
+		(scriptExecutorThread = new Thread(scriptExecutor)).start();
+	}
+
+	public void disableControls() {
 		executeButton.setDisable(true);
 		saveButton.setDisable(true);
 		loadButton.setDisable(true);
 		stopButton.setDisable(false);
 		goButton.setDisable(true);
 		addressTextField.setDisable(true);
+		recordModeSwitch.setDisable(true);
+	}
 
-		scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
-		(scriptExecutorThread = new Thread(scriptExecutor)).start();
+	public void enableControls() {
+		executeButton.setDisable(false);
+		stopButton.setDisable(true);
+		goButton.setDisable(false);
+		addressTextField.setDisable(false);
+		saveButton.setDisable(false);
+		loadButton.setDisable(false);
+		recordModeSwitch.setDisable(false);
 	}
 
 	private ScriptExecutor scriptExecutor;
@@ -642,18 +697,18 @@ public class MainController implements Initializable {
 	private boolean executionFinished = true;
 
 	public void onPageLoadSuccess() {
-		webView.getEngine().executeScript(functionsJS);
+		try {
+			webView.getEngine().executeScript(functionsJS);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void onFinishExecution() {
 		executionFinished = true;
 
 		try {
-			Document doc = webEngine.getDocument();
-			Element el = doc.getDocumentElement();
-
-			((EventTarget) el).removeEventListener("click", clickElementListener, true);
-			((EventTarget) el).addEventListener("click", clickElementListener, true);
+			// TODO record listener
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -663,16 +718,8 @@ public class MainController implements Initializable {
 		return executionFinished;
 	}
 
-	public void enableControls() {
-		executeButton.setDisable(false);
-		stopButton.setDisable(true);
-		goButton.setDisable(false);
-		addressTextField.setDisable(false);
-		saveButton.setDisable(false);
-		loadButton.setDisable(false);
-	}
-
 	public void historyBack() {
+		// TODO verify listener enabled/disabled
 		final WebHistory history = webView.getEngine().getHistory();
 		try {
 			history.go(-1);
@@ -682,6 +729,7 @@ public class MainController implements Initializable {
 	}
 
 	public void historyForward() {
+		// TODO verify listener enabled/disabled
 		final WebHistory history = webView.getEngine().getHistory();
 		try {
 			history.go(1);

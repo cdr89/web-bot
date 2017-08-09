@@ -43,7 +43,7 @@ public class Main extends Application {
 				System.out.println("No position saved for main window");
 			} else {
 				// verify not out of screen
-				UIUtils.setBoundsListener(primaryStage);
+				UIUtils.setBoundsListener(primaryStage, 40);
 
 				// restore old position
 				primaryStage.setX(x_saved);
