@@ -133,7 +133,6 @@ public class MainController implements Initializable {
 
 	public ChangeListener<State> recordListener;
 	private EventListener clickElementListener;
-	// private EventListener overElementListener;
 
 	private static String functionsJS = FileUtils.readResource("/it/caldesi/webbot/js/functions.js");
 	private static String highlightJS = FileUtils.readResource("/it/caldesi/webbot/js/highlightElement.js");
@@ -272,8 +271,7 @@ public class MainController implements Initializable {
 				public void handleEvent(Event ev) {
 					System.out.println("event: " + ev.getType());
 					try {
-						// remove highlight
-						webView.getEngine().executeScript(removeHighlightJS);
+						removeHighlight();
 					} catch (Exception e) {
 						// ignore it
 					}
@@ -282,14 +280,7 @@ public class MainController implements Initializable {
 					Element el = (Element) ev.getTarget();
 					String xPath = XMLUtils.getFullXPath(el);
 
-					try {
-						Map<String, String> paramValues = new HashMap<>();
-						paramValues.put("xPath", xPath);
-						String highlightCompiled = JSUtils.loadParametrizedJS(highlightJS, paramValues);
-						webView.getEngine().executeScript(highlightCompiled);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					highlightElement(xPath);
 					newActionPopup(ev);
 				}
 			};
@@ -333,20 +324,11 @@ public class MainController implements Initializable {
 			controller.setInstructionCallback(instruction -> {
 				if (instruction != null)
 					appendInstructionToList(instruction);
-
-				try {
-					webView.getEngine().executeScript(removeHighlightJS);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				removeHighlight();
 			});
 
 			stage.setOnCloseRequest(event -> {
-				try {
-					webView.getEngine().executeScript(removeHighlightJS);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				removeHighlight();
 			});
 
 			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), stage);
@@ -706,12 +688,6 @@ public class MainController implements Initializable {
 
 	public void onFinishExecution() {
 		executionFinished = true;
-
-		try {
-			// TODO record listener
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	protected boolean isFinishedExecution() {
@@ -733,6 +709,25 @@ public class MainController implements Initializable {
 		final WebHistory history = webView.getEngine().getHistory();
 		try {
 			history.go(1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void removeHighlight() {
+		try {
+			webView.getEngine().executeScript(removeHighlightJS);
+		} catch (Exception e) {
+			// do-nothing
+		}
+	}
+
+	public void highlightElement(String xPath) {
+		try {
+			Map<String, String> paramValues = new HashMap<>();
+			paramValues.put("xPath", xPath);
+			String highlightCompiled = JSUtils.loadParametrizedJS(highlightJS, paramValues);
+			webView.getEngine().executeScript(highlightCompiled);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
