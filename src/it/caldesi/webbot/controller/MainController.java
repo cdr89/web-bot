@@ -24,6 +24,7 @@ import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.RootBlock;
 import it.caldesi.webbot.script.ScriptExecutor;
+import it.caldesi.webbot.ui.CenteredAlert;
 import it.caldesi.webbot.ui.RetentionFileChooser;
 import it.caldesi.webbot.ui.SwitchButton;
 import it.caldesi.webbot.utils.FileUtils;
@@ -47,7 +48,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -121,6 +121,8 @@ public class MainController implements Initializable {
 	public Button saveButton;
 	@FXML
 	public Button loadButton;
+	@FXML
+	public Button clearButton;
 
 	@FXML
 	public SwitchButton recordModeSwitch;
@@ -420,11 +422,12 @@ public class MainController implements Initializable {
 
 	public void executeScript() {
 		if (scriptTreeTable.getRoot().getChildren().isEmpty()) {
-			Alert alert = new Alert(AlertType.INFORMATION);
+			CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, Context.getPrimaryStage());
 			alert.setTitle(resources.getString("scene.record.alert.emptyScript.title"));
 			alert.setHeaderText(resources.getString("scene.record.alert.emptyScript.header"));
 			alert.setContentText(resources.getString("scene.record.alert.emptyScript.content"));
-			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
+
+			alert.showCentered();
 			return;
 		}
 
@@ -463,12 +466,12 @@ public class MainController implements Initializable {
 
 	@SuppressWarnings("deprecation")
 	public void stopScript() {
-		Alert alert = new Alert(AlertType.CONFIRMATION);
+		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, Context.getPrimaryStage());
 		alert.setTitle(resources.getString("scene.record.alert.stop.title"));
 		alert.setHeaderText(resources.getString("scene.record.alert.stop.header"));
 		alert.setContentText(resources.getString("scene.record.alert.stop.content"));
 
-		Optional<ButtonType> result = UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
+		Optional<ButtonType> result = alert.showCenteredAndWait();
 		if (result.get() == ButtonType.OK) {
 			if (scriptExecutor != null && scriptExecutorThread != null) {
 				if (scriptExecutorThread.isAlive()) {
@@ -499,7 +502,7 @@ public class MainController implements Initializable {
 			Utils.saveScript(root, file);
 		} catch (Exception e) {
 			e.printStackTrace();
-			Alert alert = new Alert(AlertType.ERROR);
+			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, Context.getPrimaryStage());
 			alert.setTitle("Save");
 			alert.setHeaderText("Cannot save the file");
 			alert.setContentText("Cannot save the file " + file.getAbsolutePath());
@@ -507,7 +510,7 @@ public class MainController implements Initializable {
 			GridPane expContent = setAlertExceptionField(e);
 			alert.getDialogPane().setExpandableContent(expContent);
 
-			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
+			alert.showCentered();
 		}
 	}
 
@@ -528,7 +531,7 @@ public class MainController implements Initializable {
 			UIUtils.clearExecutionIndicators(loadedScript.getChildren());
 		} catch (Exception e) {
 			e.printStackTrace();
-			Alert alert = new Alert(AlertType.ERROR);
+			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, Context.getPrimaryStage());
 			alert.setTitle("Load");
 			alert.setHeaderText("Cannot load the file");
 			alert.setContentText("Cannot load the file " + file.getAbsolutePath());
@@ -536,7 +539,22 @@ public class MainController implements Initializable {
 			GridPane expContent = setAlertExceptionField(e);
 			alert.getDialogPane().setExpandableContent(expContent);
 
-			UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
+			alert.showCenteredAndWait();
+		}
+	}
+
+	public void clearScript() {
+		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, Context.getPrimaryStage());
+		alert.setTitle(resources.getString("scene.record.alert.clear.title"));
+		alert.setHeaderText(resources.getString("scene.record.alert.clear.header"));
+		alert.setContentText(resources.getString("scene.record.alert.clear.content"));
+
+		Optional<ButtonType> result = alert.showCenteredAndWait();
+		if (result.get() == ButtonType.OK) {
+			scriptTreeTable.getRoot().getChildren().clear();
+			scriptTreeTable.getSelectionModel().clearSelection();
+		} else {
+			return;
 		}
 	}
 

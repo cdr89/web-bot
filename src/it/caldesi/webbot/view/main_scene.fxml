@@ -36,6 +36,9 @@
 
 				<Label text="%scene.record.topbar.recordMode" />
 				<SwitchButton fx:id="recordModeSwitch" />
+
+				<Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearScript"
+					text="%scene.record.topbar.clearButton" />
 			</children>
 		</HBox>
 	</top>
