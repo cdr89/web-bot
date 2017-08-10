@@ -1,5 +1,6 @@
 package it.caldesi.webbot.model.instruction;
 
+import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
@@ -7,7 +8,7 @@ import it.caldesi.webbot.model.annotations.ArgumentType;
 import it.caldesi.webbot.model.annotations.ArgumentType.Type;
 import it.caldesi.webbot.model.annotations.NoTargetInstruction;
 import it.caldesi.webbot.model.annotations.UIInstruction;
-import javafx.scene.control.Alert;
+import it.caldesi.webbot.ui.CenteredAlert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.web.WebView;
 
@@ -24,7 +25,7 @@ public class AlertInstruction extends Instruction<Void> {
 
 	@Override
 	public Void execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
-		Alert alert = new Alert(AlertType.INFORMATION);
+		CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, Context.getPrimaryStage());
 		alert.setTitle("Alert");
 		alert.setHeaderText(null);
 		if (arg != null && !arg.trim().isEmpty()) {
@@ -35,9 +36,7 @@ public class AlertInstruction extends Instruction<Void> {
 		} else {
 			throw new ArgumentRequiredException();
 		}
-		// TODO when center does not wait
-		// UIUtils.centerAndShowPopupStage(Context.getPrimaryStage(), alert);
-		alert.showAndWait();
+		alert.showCenteredAndWait();
 
 		return null;
 	}
