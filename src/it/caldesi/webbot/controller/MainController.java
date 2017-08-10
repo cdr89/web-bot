@@ -23,6 +23,7 @@ import it.caldesi.webbot.model.instruction.GoToPageInstruction;
 import it.caldesi.webbot.model.instruction.Instruction;
 import it.caldesi.webbot.model.instruction.block.Block;
 import it.caldesi.webbot.model.instruction.block.RootBlock;
+import it.caldesi.webbot.script.Mode;
 import it.caldesi.webbot.script.ScriptExecutor;
 import it.caldesi.webbot.ui.CenteredAlert;
 import it.caldesi.webbot.ui.RetentionFileChooser;
@@ -127,6 +128,9 @@ public class MainController implements Initializable {
 	@FXML
 	public SwitchButton recordModeSwitch;
 
+	@FXML
+	public Label modeLabel;
+
 	public WebEngine webEngine;
 
 	private ResourceBundle resources;
@@ -154,14 +158,18 @@ public class MainController implements Initializable {
 		initRecordMode(resources);
 		initEventListeners();
 		initBaseListener();
+		onModeChanged(Mode.BROWSING);
 	}
 
 	private void initRecordMode(ResourceBundle resourceBundle) {
 		recordModeSwitch.addListener((observable, oldValue, newValue) -> {
-			if (newValue)
+			if (newValue) {
 				addRecordListener();
-			else
+				onModeChanged(Mode.RECORDING);
+			} else {
 				removeRecordListener();
+				onModeChanged(Mode.BROWSING);
+			}
 		});
 	}
 
@@ -435,6 +443,7 @@ public class MainController implements Initializable {
 		final ObservableList<TreeItem<Instruction<?>>> rows = scriptTreeTable.getRoot().getChildren();
 		UIUtils.clearExecutionIndicators(rows);
 		recordModeSwitch.switched(false);
+		onModeChanged(Mode.EXECUTING);
 		disableControls();
 
 		scriptExecutor = new ScriptExecutor(this, GLOBAL_DELAY);
@@ -746,6 +755,7 @@ public class MainController implements Initializable {
 
 	public void onFinishExecution() {
 		executionFinished = true;
+		onModeChanged(Mode.BROWSING);
 	}
 
 	protected boolean isFinishedExecution() {
@@ -805,4 +815,7 @@ public class MainController implements Initializable {
 		}
 	}
 
+	public void onModeChanged(Mode mode) {
+		modeLabel.setText(resources.getString(mode.getResourceId()));
+	}
 }

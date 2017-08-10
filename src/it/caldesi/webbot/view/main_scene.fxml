@@ -71,7 +71,7 @@
 		<HBox prefHeight="0.0" prefWidth="800.0" BorderPane.alignment="CENTER">
 			<children>
 				<Label text="%scene.record.statusBar.mode" />
-				<Label text="%scene.record.statusBar.mode.browsing" />
+				<Label fx:id="modeLabel" />
 			</children>
 		</HBox>
 	</bottom>
