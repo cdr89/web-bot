@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <anttasks:AntTask xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:anttasks="http://org.eclipse.fx.ide.jdt/1.0" buildDirectory="${project}/build">
-  <deploy height="800" width="800" offlineAllowed="true" placeholderref="WebBotApplet" placeholderid="WebBotApplet" nativeBundles="all">
+  <deploy height="800" width="800" offlineAllowed="true" placeholderref="WebBotApplet" placeholderid="WebBotApplet" >
     <application name="WebBot" mainclass="it.caldesi.webbot.Main" version="0.1"/>
     <info title="WebBot" vendor="Caldesi.it"/>
   </deploy>
