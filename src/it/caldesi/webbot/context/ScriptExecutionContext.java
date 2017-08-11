@@ -4,12 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.caldesi.webbot.model.instruction.block.ForBlock;
+import it.caldesi.webbot.script.ScriptExecutor;
 import javafx.scene.web.WebEngine;
 
 public class ScriptExecutionContext {
 
+	private ScriptExecutor scriptExecutor;
+
 	public Map<String, Object> variableValues = new HashMap<>();
 	public Map<ForBlock, Integer> forCounters = new HashMap<>();
+
+	public ScriptExecutionContext(ScriptExecutor scriptExecutor) {
+		this.scriptExecutor = scriptExecutor;
+	}
 
 	public <T> T resolveVariableValue(String variableName, Class<T> type) {
 		if (variableName == null || variableName.trim().isEmpty())
@@ -30,6 +37,10 @@ public class ScriptExecutionContext {
 		for (Map.Entry<String, Object> var : variableValues.entrySet()) {
 			webEngine.executeScript("var " + var.getKey() + " = \"" + var.getValue() + "\";");
 		}
+	}
+
+	public void setGlobalDelay(long globalDelay) {
+		scriptExecutor.setGlobalDelay(globalDelay);
 	}
 
 }

@@ -108,7 +108,7 @@ public class CenteredAlert extends Alert {
 		Field dialogFieldDefinition = null;
 		Class<?> currentClass = this.getClass();
 		while (dialogFieldDefinition == null || currentClass.getName() != Object.class.getName()) {
-			System.out.println("Current class: " + currentClass.getName());
+			// System.out.println("Current class: " + currentClass.getName());
 			try {
 				dialogFieldDefinition = currentClass.getDeclaredField("dialog");
 			} catch (NoSuchFieldException e) {

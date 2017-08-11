@@ -3,7 +3,6 @@ package it.caldesi.webbot.script;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 
 import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
@@ -41,7 +40,7 @@ public class ScriptExecutor implements Runnable {
 
 	public ScriptExecutor(MainController recordController, long globalDelay) {
 		this.recordController = recordController;
-		scriptExecutionContext = new ScriptExecutionContext();
+		scriptExecutionContext = new ScriptExecutionContext(this);
 
 		// Initialize iterator
 		ObservableList<TreeItem<Instruction<?>>> instructions = recordController.scriptTreeTable.getRoot()
@@ -55,6 +54,7 @@ public class ScriptExecutor implements Runnable {
 
 		playListener = new ChangeListener<State>() {
 			boolean mutexAcquired = false;
+			boolean execSemaphoreAquired = false;
 
 			@Override
 			public void changed(ObservableValue<? extends State> ov, State oldState, State newState) {
@@ -65,34 +65,43 @@ public class ScriptExecutor implements Runnable {
 
 				if (newState == State.SCHEDULED || newState == State.READY || newState == State.RUNNING) {
 					if (!mutexAcquired) {
-						System.out.println("[playListener] Acquire mutex");
+						System.out.println("[playListener] Acquiring mutex");
 						mutexAcquired = mutex.tryAcquire();
-
-						boolean tryAcquire = execSemaphore.tryAcquire();
-						if (!tryAcquire) {
-							System.out.println("Failed tryAquire of execSemaphore in state: " + newState.name());
+						if (!mutexAcquired) {
+							System.out.println("[playListener] Failed tryAquire of mutex in state: " + newState.name());
 						} else {
-							System.out.println("TryAquire of execSemaphore success in state: " + newState.name());
+							System.out
+									.println("[playListener] TryAquire of mutex success in state: " + newState.name());
+						}
+
+						execSemaphoreAquired = execSemaphore.tryAcquire();
+						if (!execSemaphoreAquired) {
+							System.out.println(
+									"[playListener] Failed tryAquire of execSemaphore in state: " + newState.name());
+						} else {
+							System.out.println(
+									"[playListener] TryAquire of execSemaphore success in state: " + newState.name());
 						}
 					}
 				} else { // can go
 					if (newState == State.SUCCEEDED) {
 						recordController.onPageLoadSuccess();
 						scriptExecutionContext.setGlobalVariablesJS(recordController.webEngine);
-						if ((currentInstruction.getValue() instanceof PageInstruction))
+						if ((currentInstruction.getValue() instanceof PageInstruction)) {
 							success(currentInstruction);
+							execSemaphore.release();
+						} else {
+							if (execSemaphoreAquired)
+								execSemaphore.release();
+						}
+						execSemaphoreAquired = false;
 					} else if (newState == State.CANCELLED || newState == State.FAILED) {
 						if ((currentInstruction.getValue() instanceof PageInstruction))
 							failed(currentInstruction);
 						forcedStop();
 					}
 
-					if (mutexAcquired) {
-						if (execSemaphore.availablePermits() == 0) {
-							execSemaphore.release();
-							System.out.println("Release execSemaphore from listener in state: " + newState.name());
-						}
-
+					if (mutexAcquired || mutex.availablePermits() == 0) {
 						System.out.println("[playListener] Release mutex");
 						mutex.release();
 						mutexAcquired = false;
@@ -158,20 +167,16 @@ public class ScriptExecutor implements Runnable {
 
 		Runnable onFinishRunnable = () -> {
 			waitFor(globalDelay);
-			boolean acquired = false;
-			if (!forced) {
-				try {
-					acquired = execSemaphore.tryAcquire(10, TimeUnit.SECONDS);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			// boolean acquired = false;
+			// if (!forced) {
+			// acquired = execSemaphore.tryAcquire();
+			// }
 			recordController.webEngine.getLoadWorker().stateProperty().removeListener(playListener);
 			recordController.onFinishExecution();
 			System.out.println("Enabling controls");
 			recordController.enableControls();
-			if (!forced && execSemaphore.availablePermits() == 0 && acquired)
-				execSemaphore.release();
+			// if (!forced && execSemaphore.availablePermits() == 0 && acquired)
+			// execSemaphore.release();
 		};
 		Platform.runLater(onFinishRunnable);
 	}
@@ -231,10 +236,10 @@ public class ScriptExecutor implements Runnable {
 							break;
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						failed = true;
 						failed(currentInstruction);
 						onFinish();
-						e.printStackTrace();
 						break;
 					}
 				}
@@ -269,6 +274,11 @@ public class ScriptExecutor implements Runnable {
 						System.out.println("[instructionRunnable] number of execSemaphore permits: "
 								+ execSemaphore.availablePermits());
 						execute(instr);
+						if (!(instr.getValue() instanceof PageInstruction)) {
+							execSemaphore.release();
+						}
+						System.out.println("[instructionRunnable] release execSemaphore, permits: "
+								+ execSemaphore.availablePermits());
 					} catch (StopExecutionException see) {
 						see.printStackTrace();
 						success(instr, true);
@@ -278,15 +288,10 @@ public class ScriptExecutor implements Runnable {
 						failed(instr);
 						onFinish();
 					} finally {
-						if (!(instr.getValue() instanceof PageInstruction)) {
-							execSemaphore.release();
-						}
-						System.out.println("[instructionRunnable] release execSemaphore, permits: "
-								+ execSemaphore.availablePermits());
+
 					}
 				};
 				runningInstruction = new Thread(instructionRunnable);
-				// graphicChangeSemaphore.acquire();
 				execSemaphore.acquire();
 				if (Context.isUIInstruction(instruction.getClass()))
 					Platform.runLater(runningInstruction);
@@ -409,6 +414,14 @@ public class ScriptExecutor implements Runnable {
 
 	public ScriptExecutionContext getContext() {
 		return scriptExecutionContext;
+	}
+
+	public long getGlobalDelay() {
+		return globalDelay;
+	}
+
+	public void setGlobalDelay(long globalDelay) {
+		this.globalDelay = globalDelay;
 	}
 
 }
