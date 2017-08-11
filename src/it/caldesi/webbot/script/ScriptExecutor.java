@@ -18,8 +18,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Worker.State;
 import javafx.scene.control.TreeItem;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 
 public class ScriptExecutor implements Runnable {
 
@@ -328,7 +326,7 @@ public class ScriptExecutor implements Runnable {
 			if (!forced)
 				graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
-				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREY)));
+				currentInstruction2.setGraphic(UIUtils.getExecutionIndicator(UIUtils.Colors.GREY));
 				waitFor(SET_GRAPHIC_DELAY);
 				if (!forced)
 					graphicChangeSemaphore.release();
@@ -349,7 +347,7 @@ public class ScriptExecutor implements Runnable {
 			if (!forced)
 				graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
-				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.RED)));
+				currentInstruction2.setGraphic(UIUtils.getExecutionIndicator(UIUtils.Colors.RED));
 				waitFor(SET_GRAPHIC_DELAY);
 				if (!forced)
 					graphicChangeSemaphore.release();
@@ -369,7 +367,7 @@ public class ScriptExecutor implements Runnable {
 			if (!forced)
 				graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
-				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.GREEN)));
+				currentInstruction2.setGraphic(UIUtils.getExecutionIndicator(UIUtils.Colors.GREEN));
 				waitFor(SET_GRAPHIC_DELAY);
 				if (!forced)
 					graphicChangeSemaphore.release();
@@ -384,7 +382,7 @@ public class ScriptExecutor implements Runnable {
 		try {
 			graphicChangeSemaphore.acquire();
 			Runnable changeGrapics = () -> {
-				currentInstruction2.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.YELLOW)));
+				currentInstruction2.setGraphic(UIUtils.getExecutionIndicator(UIUtils.Colors.YELLOW));
 				if (currentInstruction2.getValue() instanceof Block) {
 					UIUtils.clearExecutionIndicators(currentInstruction2.getChildren());
 				}

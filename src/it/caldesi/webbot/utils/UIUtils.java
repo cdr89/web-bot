@@ -18,7 +18,11 @@ import javafx.scene.Node;
 import javafx.scene.control.TextFormatter.Change;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.WritableImage;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.Paint;
+import javafx.scene.paint.RadialGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
 import javafx.scene.web.WebView;
 import javafx.stage.Screen;
@@ -55,13 +59,28 @@ public class UIUtils {
 		return integerFilter;
 	}
 
-	public static class Colors {
-		public static final String TRANSPARENT = "#00000000";
+	private static final double EXECUTION_INDICATOR_SIZE = 10.0;
 
-		public static final String GREEN = "#68C953";
-		public static final String RED = "#CF3E3E";
-		public static final String YELLOW = "#EDAD18";
-		public static final String GREY = "#DDDDDD";
+	public static Circle getExecutionIndicator(Color color) {
+		Paint fill = null;
+		if (Colors.TRANSPARENT.equals(color)) {
+			fill = Paint.valueOf(color.toString());
+		} else {
+			Stop[] stops1 = new Stop[] { new Stop(0, color), new Stop(1, Colors.BLACK_SHADOW) };
+			fill = new RadialGradient(0, 0, 0.5, 0.5, 0.8, true, CycleMethod.NO_CYCLE, stops1);
+		}
+		return new Circle(EXECUTION_INDICATOR_SIZE, fill);
+	}
+
+	public static class Colors {
+		public static final Color TRANSPARENT = Color.TRANSPARENT;
+
+		public static final Color GREEN = new Color(0, 1, 0, 1);
+		public static final Color RED = new Color(1, 0, 0, 1);
+		public static final Color YELLOW = new Color(1, 1, 0, 1);
+		public static final Color GREY = new Color(0.8, 0.8, 0.8, 1);
+
+		public static final Color BLACK_SHADOW = new Color(0, 0, 0, 0.5);
 	}
 
 	public static void clearExecutionIndicators(final ObservableList<TreeItem<Instruction<?>>> rows) {
@@ -75,7 +94,7 @@ public class UIUtils {
 	}
 
 	public static void clearInstructionIndicator(TreeItem<Instruction<?>> row) {
-		row.setGraphic(new Circle(10.0, Paint.valueOf(UIUtils.Colors.TRANSPARENT)));
+		row.setGraphic(getExecutionIndicator(Colors.TRANSPARENT));
 	}
 
 	public static void centerAndShowPopupStage(Stage primaryStage, Stage popUpStage) {
