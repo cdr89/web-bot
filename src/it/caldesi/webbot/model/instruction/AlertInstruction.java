@@ -1,6 +1,5 @@
 package it.caldesi.webbot.model.instruction;
 
-import it.caldesi.webbot.context.Context;
 import it.caldesi.webbot.context.ScriptExecutionContext;
 import it.caldesi.webbot.exception.ArgumentRequiredException;
 import it.caldesi.webbot.exception.GenericException;
@@ -25,7 +24,7 @@ public class AlertInstruction extends Instruction<Void> {
 
 	@Override
 	public Void execute(ScriptExecutionContext scriptExecutionContext, WebView webView) throws GenericException {
-		CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, Context.getPrimaryStage());
+		CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, webView.getParent());
 		alert.setTitle("Alert");
 		alert.setHeaderText(null);
 		if (arg != null && !arg.trim().isEmpty()) {

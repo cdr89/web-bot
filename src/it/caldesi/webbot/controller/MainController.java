@@ -430,7 +430,7 @@ public class MainController implements Initializable {
 
 	public void executeScript() {
 		if (scriptTreeTable.getRoot().getChildren().isEmpty()) {
-			CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, Context.getPrimaryStage());
+			CenteredAlert alert = new CenteredAlert(AlertType.INFORMATION, webView.getParent());
 			alert.setTitle(resources.getString("scene.record.alert.emptyScript.title"));
 			alert.setHeaderText(resources.getString("scene.record.alert.emptyScript.header"));
 			alert.setContentText(resources.getString("scene.record.alert.emptyScript.content"));
@@ -475,7 +475,7 @@ public class MainController implements Initializable {
 
 	@SuppressWarnings("deprecation")
 	public void stopScript() {
-		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, Context.getPrimaryStage());
+		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, webView.getParent());
 		alert.setTitle(resources.getString("scene.record.alert.stop.title"));
 		alert.setHeaderText(resources.getString("scene.record.alert.stop.header"));
 		alert.setContentText(resources.getString("scene.record.alert.stop.content"));
@@ -511,7 +511,7 @@ public class MainController implements Initializable {
 			Utils.saveScript(root, file);
 		} catch (Exception e) {
 			e.printStackTrace();
-			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, Context.getPrimaryStage());
+			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, webView.getParent());
 			alert.setTitle("Save");
 			alert.setHeaderText("Cannot save the file");
 			alert.setContentText("Cannot save the file " + file.getAbsolutePath());
@@ -540,7 +540,7 @@ public class MainController implements Initializable {
 			UIUtils.clearExecutionIndicators(loadedScript.getChildren());
 		} catch (Exception e) {
 			e.printStackTrace();
-			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, Context.getPrimaryStage());
+			CenteredAlert alert = new CenteredAlert(AlertType.ERROR, webView.getParent());
 			alert.setTitle("Load");
 			alert.setHeaderText("Cannot load the file");
 			alert.setContentText("Cannot load the file " + file.getAbsolutePath());
@@ -553,7 +553,7 @@ public class MainController implements Initializable {
 	}
 
 	public void clearScript() {
-		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, Context.getPrimaryStage());
+		CenteredAlert alert = new CenteredAlert(AlertType.CONFIRMATION, webView.getParent());
 		alert.setTitle(resources.getString("scene.record.alert.clear.title"));
 		alert.setHeaderText(resources.getString("scene.record.alert.clear.header"));
 		alert.setContentText(resources.getString("scene.record.alert.clear.content"));

@@ -9,30 +9,32 @@ import com.sun.javafx.tk.Toolkit;
 
 import javafx.beans.NamedArg;
 import javafx.event.Event;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DialogEvent;
-import javafx.stage.Stage;
 
 @SuppressWarnings("restriction")
 public class CenteredAlert extends Alert {
 
-	protected Stage primaryStage;
+	protected Node node;
 	protected Object dialogFieldValue;
 
-	public CenteredAlert(@NamedArg("alertType") AlertType alertType, Stage primaryStage) {
+	public CenteredAlert(@NamedArg("alertType") AlertType alertType, Node node) {
 		super(alertType);
-		init(primaryStage);
+		init(node);
 	}
 
 	public CenteredAlert(@NamedArg("alertType") AlertType alertType, @NamedArg("contentText") String contentText,
-			Stage primaryStage, ButtonType... buttons) {
+			Node node, ButtonType... buttons) {
 		super(alertType, contentText, buttons);
-		init(primaryStage);
+		init(node);
 	}
 
-	protected void init(Stage primaryStage) {
-		this.primaryStage = primaryStage;
+	protected void init(Node node) {
+		this.node = node;
+		initOwner(node.getScene().getWindow());
 		dialogFieldValue = getDialogFieldValue();
 	}
 
@@ -44,9 +46,8 @@ public class CenteredAlert extends Alert {
 			invokeMethodByName(dialogFieldValue, "sizeToScene");
 		}
 
-		invokeMethodByName(dialogFieldValue, "show");
 		centerAlertInStage();
-		hide();
+
 		invokeMethodByName(dialogFieldValue, "show");
 
 		Event.fireEvent(this, new DialogEvent(this, DialogEvent.DIALOG_SHOWN));
@@ -64,9 +65,7 @@ public class CenteredAlert extends Alert {
 			invokeMethodByName(dialogFieldValue, "sizeToScene");
 		}
 
-		invokeMethodByName(dialogFieldValue, "show");
 		centerAlertInStage();
-		hide();
 
 		// this is slightly odd - we fire the SHOWN event before the show()
 		// call, so that users get the event before the dialog blocks
@@ -78,8 +77,9 @@ public class CenteredAlert extends Alert {
 	}
 
 	protected void centerAlertInStage() {
-		double centerXPosition = primaryStage.getX() + primaryStage.getWidth() / 2d;
-		double centerYPosition = primaryStage.getY() + primaryStage.getHeight() / 2d;
+		Bounds boundsInScreen = node.localToScreen(node.getBoundsInLocal());
+		double centerXPosition = (boundsInScreen.getMinX() + boundsInScreen.getMaxX()) / 2d;
+		double centerYPosition = (boundsInScreen.getMinY() + boundsInScreen.getMaxY()) / 2d;
 		double width = getWidth();
 		setX(centerXPosition - width / 2d);
 		double height = getHeight();
