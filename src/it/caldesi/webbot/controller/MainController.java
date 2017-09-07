@@ -127,6 +127,8 @@ public class MainController implements Initializable {
 
 	@FXML
 	public SwitchButton recordModeSwitch;
+	@FXML
+	public SwitchButton replayOnErrorSwitch;
 
 	@FXML
 	public Label modeLabel;
@@ -350,7 +352,7 @@ public class MainController implements Initializable {
 			}
 		webEngine.load(urlString);
 
-		if (recordModeSwitch.isSwitched()) {
+		if (recordModeSwitch.isSwitchedOn()) {
 			Instruction<?> instruction = Instruction.Builder.buildByName(GoToPageInstruction.NAME);
 			instruction.setArg(webEngine.getLocation());
 			appendInstructionToList(instruction);
@@ -756,6 +758,8 @@ public class MainController implements Initializable {
 	public void onFinishExecution() {
 		executionFinished = true;
 		onModeChanged(Mode.BROWSING);
+		if (replayOnErrorSwitch.isSwitchedOn()) 
+			executeScript();
 	}
 
 	protected boolean isFinishedExecution() {

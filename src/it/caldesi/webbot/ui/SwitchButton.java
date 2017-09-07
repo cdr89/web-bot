@@ -80,7 +80,7 @@ public class SwitchButton extends HBox {
 		switchedOn.set(status);
 	}
 
-	public boolean isSwitched() {
+	public boolean isSwitchedOn() {
 		return switchedOn.get();
 	}
 

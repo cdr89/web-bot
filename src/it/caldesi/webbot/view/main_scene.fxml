@@ -39,6 +39,9 @@
 
 				<Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearScript"
 					text="%scene.record.topbar.clearButton" />
+
+				<Label text="%scene.record.topbar.replayOnError" />
+				<SwitchButton fx:id="replayOnErrorSwitch" />
 			</children>
 		</HBox>
 	</top>
