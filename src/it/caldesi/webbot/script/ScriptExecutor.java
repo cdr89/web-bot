@@ -422,4 +422,8 @@ public class ScriptExecutor implements Runnable {
 		this.globalDelay = globalDelay;
 	}
 
+	public boolean hasFailed() {
+		return failed;
+	}
+
 }

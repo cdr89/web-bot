@@ -456,6 +456,7 @@ public class MainController implements Initializable {
 		executeButton.setDisable(true);
 		saveButton.setDisable(true);
 		loadButton.setDisable(true);
+		clearButton.setDisable(true);
 		stopButton.setDisable(false);
 		goButton.setDisable(true);
 		addressTextField.setDisable(true);
@@ -469,6 +470,7 @@ public class MainController implements Initializable {
 		addressTextField.setDisable(false);
 		saveButton.setDisable(false);
 		loadButton.setDisable(false);
+		clearButton.setDisable(false);
 		recordModeSwitch.setDisable(false);
 	}
 
@@ -484,6 +486,7 @@ public class MainController implements Initializable {
 
 		Optional<ButtonType> result = alert.showCenteredAndWait();
 		if (result.get() == ButtonType.OK) {
+			replayOnErrorSwitch.switched(false);
 			if (scriptExecutor != null && scriptExecutorThread != null) {
 				if (scriptExecutorThread.isAlive()) {
 					scriptExecutor.forcedStop();
@@ -758,7 +761,7 @@ public class MainController implements Initializable {
 	public void onFinishExecution() {
 		executionFinished = true;
 		onModeChanged(Mode.BROWSING);
-		if (replayOnErrorSwitch.isSwitchedOn()) 
+		if (replayOnErrorSwitch.isSwitchedOn() && scriptExecutor != null && scriptExecutor.hasFailed())
 			executeScript();
 	}
 
